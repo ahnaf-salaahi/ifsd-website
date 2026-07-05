@@ -70,12 +70,13 @@ export default function Navbar() {
               className="fixed inset-0 bg-black/40 z-40 lg:hidden"
             />
             <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "tween", duration: 0.3 }}
-              className="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-xl lg:hidden flex flex-col p-6"
-            >
+  initial={{ x: "100%" }}
+  animate={{ x: 0 }}
+  exit={{ x: "100%" }}
+  transition={{ type: "tween", duration: 0.3 }}
+  className="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-xl lg:hidden flex flex-col p-6"
+  style={{ backgroundColor: "#ffffff" }}
+>
               <button
                 onClick={() => setIsOpen(false)}
                 className="self-end p-2 text-gray-700"

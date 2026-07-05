@@ -35,7 +35,7 @@ export default function Navbar() {
                   className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors group"
                 >
                   {link.label}
-                  <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-rose-600 transition-all duration-300 group-hover:w-full" />
                 </Link>
               </li>
             ))}
@@ -43,7 +43,7 @@ export default function Navbar() {
 
           <Link
             href="/events"
-            className="hidden lg:inline-block bg-emerald-600 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-emerald-700 transition-colors whitespace-nowrap"
+            className="hidden lg:inline-block bg-rose-600 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-rose-700 transition-colors whitespace-nowrap"
           >
             Book a Consultation
           </Link>

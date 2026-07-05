@@ -36,8 +36,8 @@ export default function AdminSidebar({ fullName }: { fullName: string }) {
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
               pathname === item.href
-                ? "bg-emerald-50 text-emerald-700"
-                : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+                ? "bg-rose-50 text-rose-700"
+                : "text-gray-700 hover:bg-rose-50 hover:text-rose-700"
             }`}
           >
             <item.icon size={18} className="shrink-0" />

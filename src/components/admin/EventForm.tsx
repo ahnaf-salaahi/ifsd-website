@@ -114,7 +114,7 @@ export default function EventForm({ event }: { event?: Event }) {
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -125,7 +125,7 @@ export default function EventForm({ event }: { event?: Event }) {
           rows={5}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -137,7 +137,7 @@ export default function EventForm({ event }: { event?: Event }) {
             type="datetime-local"
             value={eventDate}
             onChange={(e) => setEventDate(e.target.value)}
-            className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
           />
         </div>
         <div>
@@ -146,7 +146,7 @@ export default function EventForm({ event }: { event?: Event }) {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g. Colombo or Online (Zoom)"
-            className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
           />
         </div>
       </div>
@@ -167,7 +167,7 @@ export default function EventForm({ event }: { event?: Event }) {
         <button
           type="submit"
           disabled={saving}
-          className="bg-emerald-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-60"
+          className="bg-rose-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
         >
           {saving ? "Saving..." : event ? "Save Changes" : "Create Event"}
         </button>

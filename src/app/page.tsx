@@ -67,7 +67,7 @@ export default function Home() {
         >
           <Link
             href="/scholarships"
-            className="bg-emerald-600 text-white px-6 py-3 rounded-full font-medium hover:bg-emerald-700 transition-colors"
+            className="bg-rose-600 text-white px-6 py-3 rounded-full font-medium hover:bg-rose-700 transition-colors"
           >
             Apply for Scholarship Guidance
           </Link>
@@ -79,7 +79,7 @@ export default function Home() {
           </Link>
           <Link
             href="/scholarships"
-            className="text-gray-700 px-6 py-3 font-medium hover:text-emerald-700 transition-colors"
+            className="text-gray-700 px-6 py-3 font-medium hover:text-rose-700 transition-colors"
           >
             View Latest Scholarships →
           </Link>
@@ -97,7 +97,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
-              <div className="text-3xl md:text-4xl font-semibold text-emerald-700">
+              <div className="text-3xl md:text-4xl font-semibold text-rose-700">
                 {stat.value}
               </div>
               <div className="mt-1 text-sm text-gray-600">{stat.label}</div>
@@ -129,7 +129,7 @@ export default function Home() {
               whileHover={{ y: -6 }}
               className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
             >
-              <item.icon className="text-emerald-600" size={32} />
+              <item.icon className="text-rose-600" size={32} />
               <h3 className="mt-4 font-semibold text-gray-900">
                 {item.title}
               </h3>
@@ -142,7 +142,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="bg-emerald-700 py-20">
+      <section className="bg-rose-700 py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -162,7 +162,7 @@ export default function Home() {
           >
             <Link
               href="/contact"
-              className="inline-block bg-white text-emerald-700 px-7 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors"
+              className="inline-block bg-white text-rose-700 px-7 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors"
             >
               Join Our Programmes
             </Link>

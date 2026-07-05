@@ -40,7 +40,7 @@ export default function ProgrammesClient({ programmes }: { programmes: Programme
         {/* Past Programmes */}
         <div>
           <div className="flex items-center gap-2 mb-6">
-            <CheckCircle2 className="text-emerald-600" size={22} />
+            <CheckCircle2 className="text-rose-600" size={22} />
             <h2 className="text-xl font-semibold text-gray-900">Past Programmes</h2>
           </div>
           <div className="space-y-4">
@@ -76,7 +76,7 @@ export default function ProgrammesClient({ programmes }: { programmes: Programme
         {/* Upcoming / Planned Programmes */}
         <div>
           <div className="flex items-center gap-2 mb-6">
-            <Clock className="text-emerald-600" size={22} />
+            <Clock className="text-rose-600" size={22} />
             <h2 className="text-xl font-semibold text-gray-900">Upcoming Programmes</h2>
           </div>
           <div className="space-y-4">
@@ -90,7 +90,7 @@ export default function ProgrammesClient({ programmes }: { programmes: Programme
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="bg-emerald-50 border border-emerald-100 rounded-xl p-5"
+                  className="bg-rose-50 border border-rose-100 rounded-xl p-5"
                 >
                   {p.image_url && (
                     <img

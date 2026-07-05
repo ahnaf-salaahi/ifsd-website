@@ -113,7 +113,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -124,7 +124,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -133,7 +133,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as "past" | "upcoming")}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         >
           <option value="upcoming">Upcoming Programme</option>
           <option value="past">Past Programme</option>
@@ -176,7 +176,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
         <button
           type="submit"
           disabled={saving}
-          className="bg-emerald-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
         >
           {saving ? "Saving..." : programme ? "Save Changes" : "Create Programme"}
         </button>

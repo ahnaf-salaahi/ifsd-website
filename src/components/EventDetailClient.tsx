@@ -116,7 +116,7 @@ export default function EventDetailClient({
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-emerald-800"
+              className="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl p-5 text-rose-800"
             >
               <CheckCircle2 size={22} />
               You're registered! We'll be in touch with more details.
@@ -128,7 +128,7 @@ export default function EventDetailClient({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Full Name"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <input
                 required
@@ -136,20 +136,20 @@ export default function EventDetailClient({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email Address"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Phone Number"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Any questions or notes? (optional)"
                 rows={3}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
 
               {status === "error" && (
@@ -159,7 +159,7 @@ export default function EventDetailClient({
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-60"
+                className="w-full bg-rose-600 text-white py-3 rounded-lg font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
               >
                 {status === "submitting" ? "Submitting..." : "Register Now"}
               </button>

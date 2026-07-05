@@ -78,7 +78,7 @@ export default function EventsClient({ events }: { events: Event[] }) {
                 )}
                 <Link
                   href={`/events/${e.slug}`}
-                  className="mt-5 inline-block text-center bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+                  className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
                 >
                   {e.registration_open ? "View & Register" : "View Details"}
                 </Link>
@@ -107,7 +107,7 @@ export default function EventsClient({ events }: { events: Event[] }) {
                 </div>
                 <Link
                   href={`/events/${e.slug}`}
-                  className="mt-4 text-emerald-700 text-sm font-medium hover:underline"
+                  className="mt-4 text-rose-700 text-sm font-medium hover:underline"
                 >
                   View Photos →
                 </Link>

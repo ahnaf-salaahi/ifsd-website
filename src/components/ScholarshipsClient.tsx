@@ -71,7 +71,7 @@ export default function ScholarshipsClient({
             onClick={() => setCountryFilter(c)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               countryFilter === c
-                ? "bg-emerald-600 text-white"
+                ? "bg-rose-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
@@ -86,7 +86,7 @@ export default function ScholarshipsClient({
             onClick={() => setFundingFilter(f)}
             className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors ${
               fundingFilter === f
-                ? "border-emerald-600 text-emerald-700 bg-emerald-50"
+                ? "border-rose-600 text-rose-700 bg-rose-50"
                 : "border-gray-300 text-gray-600 hover:border-gray-400"
             }`}
           >
@@ -113,7 +113,7 @@ export default function ScholarshipsClient({
                   whileHover={{ y: -6 }}
                   className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
                 >
-                  <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 w-fit px-3 py-1 rounded-full">
+                  <div className="flex items-center gap-2 text-xs font-medium text-rose-700 bg-rose-50 w-fit px-3 py-1 rounded-full">
                     <GraduationCap size={14} /> {s.funding_type}
                   </div>
                   <h3 className="mt-4 font-semibold text-gray-900 text-lg">{s.title}</h3>
@@ -149,7 +149,7 @@ export default function ScholarshipsClient({
                       href={s.apply_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-5 inline-block text-center bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+                      className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
                     >
                       Apply Now
                     </a>

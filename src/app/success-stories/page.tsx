@@ -41,7 +41,7 @@ export default function SuccessStoriesPage() {
             transition={{ duration: 0.5, delay: i * 0.1 }}
             className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm"
           >
-            <Quote className="text-emerald-600" size={26} />
+            <Quote className="text-rose-600" size={26} />
             <p className="mt-4 text-gray-700 text-sm leading-relaxed">{s.text}</p>
             <div className="mt-5 border-t border-gray-100 pt-4">
               <p className="font-semibold text-gray-900 text-sm">{s.name}</p>

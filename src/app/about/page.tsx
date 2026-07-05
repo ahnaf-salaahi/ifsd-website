@@ -60,7 +60,7 @@ export default function AboutPage() {
             transition={{ duration: 0.5 }}
             className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
           >
-            <h2 className="text-xl font-semibold text-emerald-700">Vision</h2>
+            <h2 className="text-xl font-semibold text-rose-700">Vision</h2>
             <p className="mt-3 text-gray-600 leading-relaxed">
               To empower students and youth with knowledge, skills, values,
               and guidance to achieve educational success, career
@@ -74,7 +74,7 @@ export default function AboutPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
           >
-            <h2 className="text-xl font-semibold text-emerald-700">Mission</h2>
+            <h2 className="text-xl font-semibold text-rose-700">Mission</h2>
             <p className="mt-3 text-gray-600 leading-relaxed">
               To provide quality skills development, scholarship guidance,
               leadership training, mentoring, and community-based educational
@@ -162,7 +162,7 @@ export default function AboutPage() {
               whileHover={{ y: -6 }}
               className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
             >
-              <v.icon className="text-emerald-600" size={28} />
+              <v.icon className="text-rose-600" size={28} />
               <h3 className="mt-3 font-semibold text-gray-900">{v.title}</h3>
               <p className="mt-2 text-sm text-gray-600 leading-relaxed">{v.desc}</p>
             </motion.div>

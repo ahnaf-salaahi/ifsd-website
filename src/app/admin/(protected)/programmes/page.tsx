@@ -17,7 +17,7 @@ export default async function AdminProgrammesPage() {
         <h1 className="text-2xl font-semibold text-gray-900">Programmes</h1>
         <Link
           href="/admin/programmes/new"
-          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-full text-sm font-medium hover:bg-emerald-700 transition-colors whitespace-nowrap shrink-0"
+          className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors whitespace-nowrap shrink-0"
         >
           <Plus size={18} className="shrink-0" /> New Programme
         </Link>
@@ -42,7 +42,7 @@ export default async function AdminProgrammesPage() {
                     className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                       p.category === "past"
                         ? "bg-gray-100 text-gray-600"
-                        : "bg-emerald-50 text-emerald-700"
+                        : "bg-rose-50 text-rose-700"
                     }`}
                   >
                     {p.category === "past" ? "Past" : "Upcoming"}
@@ -52,7 +52,7 @@ export default async function AdminProgrammesPage() {
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                       p.published
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-rose-50 text-rose-700"
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
@@ -62,7 +62,7 @@ export default async function AdminProgrammesPage() {
                 <td className="px-6 py-4 text-right">
                   <Link
                     href={`/admin/programmes/${p.id}`}
-                    className="inline-flex items-center gap-1 text-emerald-700 hover:underline whitespace-nowrap"
+                    className="inline-flex items-center gap-1 text-rose-700 hover:underline whitespace-nowrap"
                   >
                     <Pencil size={14} /> Edit
                   </Link>

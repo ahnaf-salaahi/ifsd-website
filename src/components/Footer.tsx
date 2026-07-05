@@ -18,26 +18,25 @@ export default function Footer() {
           <h4 className="text-white font-medium mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm">
             <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-            <li><Link href="/edu-first" className="hover:text-white">Edu First</Link></li>
-            <li><Link href="/services" className="hover:text-white">Services</Link></li>
             <li><Link href="/scholarships" className="hover:text-white">Scholarships</Link></li>
+            <li><Link href="/programmes" className="hover:text-white">Programmes</Link></li>
           </ul>
         </div>
 
         <div>
-  <h4 className="text-white font-medium mb-3">Quick Links</h4>
-  <ul className="space-y-2 text-sm">
-    <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-    <li><Link href="/scholarships" className="hover:text-white">Scholarships</Link></li>
-    <li><Link href="/programmes" className="hover:text-white">Programmes</Link></li>
-  </ul>
-</div>
+          <h4 className="text-white font-medium mb-3">Explore</h4>
+          <ul className="space-y-2 text-sm">
+            <li><Link href="/events" className="hover:text-white">Events</Link></li>
+            <li><Link href="/success-stories" className="hover:text-white">Success Stories</Link></li>
+            <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+          </ul>
+        </div>
 
         <div>
           <h4 className="text-white font-medium mb-3">Contact</h4>
           <ul className="space-y-2 text-sm text-gray-400">
-            <li>Email: info@yourdomain.com</li>
-            <li>Phone: +94 XX XXX XXXX</li>
+            <li>Email: info.isd.lk@gmail.com</li>
+            <li>Phone: +94 71 144 2448</li>
           </ul>
         </div>
       </div>

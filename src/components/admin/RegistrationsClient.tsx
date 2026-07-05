@@ -63,7 +63,7 @@ export default function RegistrationsClient({
         <h1 className="text-2xl font-semibold text-gray-900">Registrations</h1>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+          className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
         >
           <Download size={16} /> Export CSV
         </button>
@@ -76,7 +76,7 @@ export default function RegistrationsClient({
             onClick={() => setFilter(t)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               filter === t
-                ? "bg-emerald-600 text-white"
+                ? "bg-rose-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >

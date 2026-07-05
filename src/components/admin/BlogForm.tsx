@@ -94,7 +94,7 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -104,7 +104,7 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           placeholder="e.g. Edu First Team"
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -115,7 +115,7 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
           rows={10}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
 
@@ -135,7 +135,7 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
         <button
           type="submit"
           disabled={saving}
-          className="bg-emerald-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-60"
+          className="bg-rose-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
         >
           {saving ? "Saving..." : blog ? "Save Changes" : "Create Post"}
         </button>

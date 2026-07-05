@@ -25,7 +25,7 @@ export default async function AdminEventsPage() {
         <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
         <Link
           href="/admin/events/new"
-          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+          className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
         >
           <Plus size={18} /> New Event
         </Link>
@@ -50,7 +50,7 @@ export default async function AdminEventsPage() {
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       e.registration_open
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-rose-50 text-rose-700"
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
@@ -60,7 +60,7 @@ export default async function AdminEventsPage() {
                 <td className="px-6 py-4 text-right">
                   <Link
                     href={`/admin/events/${e.id}`}
-                    className="inline-flex items-center gap-1 text-emerald-700 hover:underline"
+                    className="inline-flex items-center gap-1 text-rose-700 hover:underline"
                   >
                     <Pencil size={14} /> Manage
                   </Link>

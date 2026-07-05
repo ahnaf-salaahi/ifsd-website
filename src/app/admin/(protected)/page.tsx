@@ -28,7 +28,7 @@ export default async function AdminDashboard() {
             key={s.label}
             className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm"
           >
-            <s.icon className="text-emerald-600" size={24} />
+            <s.icon className="text-rose-600" size={24} />
             <div className="mt-3 text-3xl font-semibold text-gray-900">{s.value}</div>
             <div className="text-sm text-gray-500 mt-1">{s.label}</div>
           </div>

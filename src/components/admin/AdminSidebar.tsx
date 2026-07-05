@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, FileText, CalendarDays, Users, GraduationCap, Menu, X,
+  LayoutDashboard, FileText, CalendarDays, Users, GraduationCap, ListChecks, Menu, X,
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/blogs", label: "Blogs", icon: FileText },
   { href: "/admin/events", label: "Events", icon: CalendarDays },
   { href: "/admin/scholarships", label: "Scholarships", icon: GraduationCap },
+  { href: "/admin/programmes", label: "Programmes", icon: ListChecks },
   { href: "/admin/registrations", label: "Registrations", icon: Users },
 ];
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -22,10 +23,19 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-semibold text-gray-900">
-            Institute for Skills Development
-          </Link>
+        <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
+          <Link href="/" className="flex items-center gap-3">
+  <Image
+    src="/logo.png"
+    alt="Institute for Skills Development"
+    width={100}
+    height={100}
+    className="object-contain"
+  />
+  <span className="text-lg font-semibold text-gray-900 hidden sm:inline">
+    Institute for Skills Development
+  </span>
+</Link>
 
           <ul className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (

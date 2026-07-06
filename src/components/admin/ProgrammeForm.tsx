@@ -63,59 +63,59 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
     const payload = { title, description, category, image_url: imageUrl || null, published };
 
     if (programme) {
-  const { error } = await supabase
-    .from("programmes")
-    .update(payload)
-    .eq("id", programme.id);
+      const { error } = await supabase
+        .from("programmes")
+        .update(payload)
+        .eq("id", programme.id);
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published) {
-    const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
-    syncEmbedding("programme", programme.id, text);
-  } else {
-    deleteEmbedding("programme", programme.id);
-  }
+      if (published) {
+        const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
+        syncEmbedding("programme", programme.id, text);
+      } else {
+        deleteEmbedding("programme", programme.id);
+      }
     } else {
-  const { data, error } = await supabase.from("programmes").insert(payload).select().single();
+      const { data, error } = await supabase.from("programmes").insert(payload).select().single();
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published && data) {
-    const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
-    syncEmbedding("programme", data.id, text);
-  }
-}
+      if (published && data) {
+        const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
+        syncEmbedding("programme", data.id, text);
+      }
+    }
 
     router.push("/admin/programmes");
     router.refresh();
   }
 
   async function handleDelete() {
-  if (!programme) return;
-  if (!confirm("Delete this programme? This cannot be undone.")) return;
+    if (!programme) return;
+    if (!confirm("Delete this programme? This cannot be undone.")) return;
 
-  const supabase = createClient();
-  const { error } = await supabase.from("programmes").delete().eq("id", programme.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("programmes").delete().eq("id", programme.id);
 
-  if (error) {
-    setError(error.message);
-    return;
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    deleteEmbedding("programme", programme.id);
+
+    router.push("/admin/programmes");
+    router.refresh();
   }
-
-  deleteEmbedding("programme", programme.id);
-
-  router.push("/admin/programmes");
-  router.refresh();
-}
 
   return (
     <form
@@ -200,7 +200,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
           <button
             type="button"
             onClick={handleDelete}
-            className="text-red-600 text-sm font-medium hover:underline whitespace-nowrap"
+            className="text-red-600 text-sm font-medium hover:underline"
           >
             Delete Programme
           </button>

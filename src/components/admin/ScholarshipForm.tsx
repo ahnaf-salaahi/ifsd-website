@@ -63,64 +63,64 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
     };
 
     if (scholarship) {
-  const { error } = await supabase
-    .from("scholarships")
-    .update(payload)
-    .eq("id", scholarship.id);
+      const { error } = await supabase
+        .from("scholarships")
+        .update(payload)
+        .eq("id", scholarship.id);
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published) {
-    const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
-    syncEmbedding("scholarship", scholarship.id, text);
-  } else {
-    deleteEmbedding("scholarship", scholarship.id);
-  }
+      if (published) {
+        const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
+        syncEmbedding("scholarship", scholarship.id, text);
+      } else {
+        deleteEmbedding("scholarship", scholarship.id);
+      }
     } else {
-  const slug = slugify(title);
-  const { data, error } = await supabase
-    .from("scholarships")
-    .insert({ ...payload, slug })
-    .select()
-    .single();
+      const slug = slugify(title);
+      const { data, error } = await supabase
+        .from("scholarships")
+        .insert({ ...payload, slug })
+        .select()
+        .single();
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published && data) {
-    const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
-    syncEmbedding("scholarship", data.id, text);
-  }
-}
+      if (published && data) {
+        const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
+        syncEmbedding("scholarship", data.id, text);
+      }
+    }
 
     router.push("/admin/scholarships");
     router.refresh();
   }
 
   async function handleDelete() {
-  if (!scholarship) return;
-  if (!confirm("Delete this scholarship? This cannot be undone.")) return;
+    if (!scholarship) return;
+    if (!confirm("Delete this scholarship? This cannot be undone.")) return;
 
-  const supabase = createClient();
-  const { error } = await supabase.from("scholarships").delete().eq("id", scholarship.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("scholarships").delete().eq("id", scholarship.id);
 
-  if (error) {
-    setError(error.message);
-    return;
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    deleteEmbedding("scholarship", scholarship.id);
+
+    router.push("/admin/scholarships");
+    router.refresh();
   }
-
-  deleteEmbedding("scholarship", scholarship.id);
-
-  router.push("/admin/scholarships");
-  router.refresh();
-}
 
   return (
     <form
@@ -239,7 +239,7 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
         <button
           type="submit"
           disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
+          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
         >
           {saving ? "Saving..." : scholarship ? "Save Changes" : "Create Scholarship"}
         </button>

@@ -37,68 +37,45 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
     setError("");
 
     const supabase = createClient();
-    let savedId = blog?.id;
 
     if (blog) {
-  // Update existing
-  const { error } = await supabase
-    .from("blogs")
-    .update({ title, content, author, published })
-    .eq("id", blog.id);
+      // Update existing
+      const { error } = await supabase
+        .from("blogs")
+        .update({ title, content, author, published })
+        .eq("id", blog.id);
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published) {
-    const text = `Blog Post: ${title}\n${content}\nAuthor: ${author ?? "N/A"}`;
-    syncEmbedding("blog", blog.id, text);
-  } else {
-    deleteEmbedding("blog", blog.id);
-  }
-}
+      if (published) {
+        const text = `Blog Post: ${title}\n${content}\nAuthor: ${author ?? "N/A"}`;
+        syncEmbedding("blog", blog.id, text);
+      } else {
+        deleteEmbedding("blog", blog.id);
+      }
     } else {
-  // Create new
-  const slug = slugify(title);
-  const { data, error } = await supabase
-    .from("blogs")
-    .insert({ title, slug, content, author, published })
-    .select()
-    .single();
+      // Create new
+      const slug = slugify(title);
+      const { data, error } = await supabase
+        .from("blogs")
+        .insert({ title, slug, content, author, published })
+        .select()
+        .single();
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (published && data) {
-    const text = `Blog Post: ${title}\n${content}\nAuthor: ${author ?? "N/A"}`;
-    syncEmbedding("blog", data.id, text);
-  }
-}
-
-    // Keep the AI assistant's knowledge in sync — only if published
-    if (published && savedId) {
-      const embedText = `Blog Post: ${title}\n${content}\nAuthor: ${author || "N/A"}`;
-      fetch("/api/embed-content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sourceType: "blog",
-          sourceId: savedId,
-          text: embedText,
-        }),
-      }).catch(() => {}); // non-blocking — don't fail the save if this hiccups
-    } else if (!published && savedId) {
-      // Unpublished — remove it from AI's searchable knowledge
-      fetch("/api/embed-content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceType: "blog", sourceId: savedId, deleted: true }),
-      }).catch(() => {});
+      if (published && data) {
+        const text = `Blog Post: ${title}\n${content}\nAuthor: ${author ?? "N/A"}`;
+        syncEmbedding("blog", data.id, text);
+      }
     }
 
     router.push("/admin/blogs");
@@ -106,22 +83,22 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
   }
 
   async function handleDelete() {
-  if (!blog) return;
-  if (!confirm("Delete this blog post? This cannot be undone.")) return;
+    if (!blog) return;
+    if (!confirm("Delete this blog post? This cannot be undone.")) return;
 
-  const supabase = createClient();
-  const { error } = await supabase.from("blogs").delete().eq("id", blog.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("blogs").delete().eq("id", blog.id);
 
-  if (error) {
-    setError(error.message);
-    return;
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    deleteEmbedding("blog", blog.id);
+
+    router.push("/admin/blogs");
+    router.refresh();
   }
-
-  deleteEmbedding("blog", blog.id);
-
-  router.push("/admin/blogs");
-  router.refresh();
-}
 
   return (
     <form

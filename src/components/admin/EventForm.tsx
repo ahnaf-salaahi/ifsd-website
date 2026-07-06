@@ -45,76 +45,76 @@ export default function EventForm({ event }: { event?: Event }) {
     const supabase = createClient();
 
     if (event) {
-  const { error } = await supabase
-    .from("events")
-    .update({
-      title,
-      description,
-      event_date: eventDate,
-      location,
-      registration_open: registrationOpen,
-    })
-    .eq("id", event.id);
+      const { error } = await supabase
+        .from("events")
+        .update({
+          title,
+          description,
+          event_date: eventDate,
+          location,
+          registration_open: registrationOpen,
+        })
+        .eq("id", event.id);
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
-  syncEmbedding("event", event.id, text);
+      const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+      syncEmbedding("event", event.id, text);
 
-  router.push(`/admin/events/${event.id}`);
-  router.refresh();
+      router.push(`/admin/events/${event.id}`);
+      router.refresh();
     } else {
-  const slug = slugify(title);
-  const { data, error } = await supabase
-    .from("events")
-    .insert({
-      title,
-      slug,
-      description,
-      event_date: eventDate,
-      location,
-      registration_open: registrationOpen,
-    })
-    .select()
-    .single();
+      const slug = slugify(title);
+      const { data, error } = await supabase
+        .from("events")
+        .insert({
+          title,
+          slug,
+          description,
+          event_date: eventDate,
+          location,
+          registration_open: registrationOpen,
+        })
+        .select()
+        .single();
 
-  if (error) {
-    setError(error.message);
-    setSaving(false);
-    return;
-  }
+      if (error) {
+        setError(error.message);
+        setSaving(false);
+        return;
+      }
 
-  if (data) {
-    const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
-    syncEmbedding("event", data.id, text);
-  }
+      if (data) {
+        const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+        syncEmbedding("event", data.id, text);
+      }
 
-  router.push(`/admin/events/${data.id}`);
-  router.refresh();
-}
+      router.push(`/admin/events/${data.id}`);
+      router.refresh();
+    }
   }
 
   async function handleDelete() {
-  if (!event) return;
-  if (!confirm("Delete this event? This cannot be undone.")) return;
+    if (!event) return;
+    if (!confirm("Delete this event? This cannot be undone.")) return;
 
-  const supabase = createClient();
-  const { error } = await supabase.from("events").delete().eq("id", event.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("events").delete().eq("id", event.id);
 
-  if (error) {
-    setError(error.message);
-    return;
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    deleteEmbedding("event", event.id);
+
+    router.push("/admin/events");
+    router.refresh();
   }
-
-  deleteEmbedding("event", event.id);
-
-  router.push("/admin/events");
-  router.refresh();
-}
 
   return (
     <form
@@ -180,7 +180,7 @@ export default function EventForm({ event }: { event?: Event }) {
         <button
           type="submit"
           disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
+          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
         >
           {saving ? "Saving..." : event ? "Save Changes" : "Create Event"}
         </button>

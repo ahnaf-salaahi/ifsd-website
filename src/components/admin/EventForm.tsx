@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
 
 type Event = {
   id: string;
@@ -44,64 +45,76 @@ export default function EventForm({ event }: { event?: Event }) {
     const supabase = createClient();
 
     if (event) {
-      const { error } = await supabase
-        .from("events")
-        .update({
-          title,
-          description,
-          event_date: eventDate,
-          location,
-          registration_open: registrationOpen,
-        })
-        .eq("id", event.id);
+  const { error } = await supabase
+    .from("events")
+    .update({
+      title,
+      description,
+      event_date: eventDate,
+      location,
+      registration_open: registrationOpen,
+    })
+    .eq("id", event.id);
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
-      router.push(`/admin/events/${event.id}`);
-      router.refresh();
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+  syncEmbedding("event", event.id, text);
+
+  router.push(`/admin/events/${event.id}`);
+  router.refresh();
     } else {
-      const slug = slugify(title);
-      const { data, error } = await supabase
-        .from("events")
-        .insert({
-          title,
-          slug,
-          description,
-          event_date: eventDate,
-          location,
-          registration_open: registrationOpen,
-        })
-        .select()
-        .single();
+  const slug = slugify(title);
+  const { data, error } = await supabase
+    .from("events")
+    .insert({
+      title,
+      slug,
+      description,
+      event_date: eventDate,
+      location,
+      registration_open: registrationOpen,
+    })
+    .select()
+    .single();
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
-      router.push(`/admin/events/${data.id}`);
-      router.refresh();
-    }
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  if (data) {
+    const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+    syncEmbedding("event", data.id, text);
+  }
+
+  router.push(`/admin/events/${data.id}`);
+  router.refresh();
+}
   }
 
   async function handleDelete() {
-    if (!event) return;
-    if (!confirm("Delete this event? This cannot be undone.")) return;
+  if (!event) return;
+  if (!confirm("Delete this event? This cannot be undone.")) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from("events").delete().eq("id", event.id);
+  const supabase = createClient();
+  const { error } = await supabase.from("events").delete().eq("id", event.id);
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    router.push("/admin/events");
-    router.refresh();
+  if (error) {
+    setError(error.message);
+    return;
   }
+
+  deleteEmbedding("event", event.id);
+
+  router.push("/admin/events");
+  router.refresh();
+}
 
   return (
     <form

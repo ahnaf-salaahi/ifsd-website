@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
 
 type Scholarship = {
   id: string;
@@ -62,48 +63,64 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
     };
 
     if (scholarship) {
-      const { error } = await supabase
-        .from("scholarships")
-        .update(payload)
-        .eq("id", scholarship.id);
+  const { error } = await supabase
+    .from("scholarships")
+    .update(payload)
+    .eq("id", scholarship.id);
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  if (published) {
+    const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
+    syncEmbedding("scholarship", scholarship.id, text);
+  } else {
+    deleteEmbedding("scholarship", scholarship.id);
+  }
     } else {
-      const slug = slugify(title);
-      const { error } = await supabase
-        .from("scholarships")
-        .insert({ ...payload, slug });
+  const slug = slugify(title);
+  const { data, error } = await supabase
+    .from("scholarships")
+    .insert({ ...payload, slug })
+    .select()
+    .single();
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
-    }
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  if (published && data) {
+    const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
+    syncEmbedding("scholarship", data.id, text);
+  }
+}
 
     router.push("/admin/scholarships");
     router.refresh();
   }
 
   async function handleDelete() {
-    if (!scholarship) return;
-    if (!confirm("Delete this scholarship? This cannot be undone.")) return;
+  if (!scholarship) return;
+  if (!confirm("Delete this scholarship? This cannot be undone.")) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from("scholarships").delete().eq("id", scholarship.id);
+  const supabase = createClient();
+  const { error } = await supabase.from("scholarships").delete().eq("id", scholarship.id);
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    router.push("/admin/scholarships");
-    router.refresh();
+  if (error) {
+    setError(error.message);
+    return;
   }
+
+  deleteEmbedding("scholarship", scholarship.id);
+
+  router.push("/admin/scholarships");
+  router.refresh();
+}
 
   return (
     <form

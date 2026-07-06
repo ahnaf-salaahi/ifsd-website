@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
 import { Upload } from "lucide-react";
 
 type Programme = {
@@ -62,45 +63,59 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
     const payload = { title, description, category, image_url: imageUrl || null, published };
 
     if (programme) {
-      const { error } = await supabase
-        .from("programmes")
-        .update(payload)
-        .eq("id", programme.id);
+  const { error } = await supabase
+    .from("programmes")
+    .update(payload)
+    .eq("id", programme.id);
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  if (published) {
+    const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
+    syncEmbedding("programme", programme.id, text);
+  } else {
+    deleteEmbedding("programme", programme.id);
+  }
     } else {
-      const { error } = await supabase.from("programmes").insert(payload);
+  const { data, error } = await supabase.from("programmes").insert(payload).select().single();
 
-      if (error) {
-        setError(error.message);
-        setSaving(false);
-        return;
-      }
-    }
+  if (error) {
+    setError(error.message);
+    setSaving(false);
+    return;
+  }
+
+  if (published && data) {
+    const text = `Programme: ${title}\n${description}\nCategory: ${category}`;
+    syncEmbedding("programme", data.id, text);
+  }
+}
 
     router.push("/admin/programmes");
     router.refresh();
   }
 
   async function handleDelete() {
-    if (!programme) return;
-    if (!confirm("Delete this programme? This cannot be undone.")) return;
+  if (!programme) return;
+  if (!confirm("Delete this programme? This cannot be undone.")) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from("programmes").delete().eq("id", programme.id);
+  const supabase = createClient();
+  const { error } = await supabase.from("programmes").delete().eq("id", programme.id);
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    router.push("/admin/programmes");
-    router.refresh();
+  if (error) {
+    setError(error.message);
+    return;
   }
+
+  deleteEmbedding("programme", programme.id);
+
+  router.push("/admin/programmes");
+  router.refresh();
+}
 
   return (
     <form

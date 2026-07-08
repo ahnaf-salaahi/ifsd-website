@@ -12,6 +12,7 @@ type EventType = {
   event_date: string;
   location: string | null;
   registration_open: boolean;
+  cover_image_url: string | null;
 };
 
 type Photo = {
@@ -68,6 +69,18 @@ export default function EventDetailClient({
 
   return (
     <div className="max-w-4xl mx-auto px-6 pt-16 pb-24">
+      
+      {event.cover_image_url && (
+        <motion.img
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          src={event.cover_image_url}
+          alt={event.title}
+          className="w-full max-h-[500px] object-contain bg-gray-50 rounded-2xl mb-8"
+        />
+      )}
+      
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

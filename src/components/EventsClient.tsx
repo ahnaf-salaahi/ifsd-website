@@ -12,6 +12,7 @@ type Event = {
   event_date: string;
   location: string | null;
   registration_open: boolean;
+  cover_image_url: string | null;
 };
 
 function formatDate(dateStr: string) {
@@ -62,8 +63,16 @@ export default function EventsClient({ events }: { events: Event[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: (i % 6) * 0.08 }}
                 whileHover={{ y: -6 }}
-                className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
               >
+                {e.cover_image_url && (
+                  <img
+                    src={e.cover_image_url}
+                    alt={e.title}
+                    className="w-full h-44 object-contain bg-gray-50"
+                  />
+                )}
+                <div className="p-6 flex flex-col flex-1">
                 <h3 className="font-semibold text-gray-900 text-lg">{e.title}</h3>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed flex-1">
                   {e.description}
@@ -82,6 +91,7 @@ export default function EventsClient({ events }: { events: Event[] }) {
                 >
                   {e.registration_open ? "View & Register" : "View Details"}
                 </Link>
+                </div>
               </motion.div>
             ))}
           </div>

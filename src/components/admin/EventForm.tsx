@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
+import { Upload } from "lucide-react";
 
 type Event = {
   id: string;
@@ -13,6 +14,7 @@ type Event = {
   event_date: string;
   location: string | null;
   registration_open: boolean;
+  cover_image_url: string | null;
 };
 
 function slugify(text: string) {
@@ -34,8 +36,36 @@ export default function EventForm({ event }: { event?: Event }) {
   const [registrationOpen, setRegistrationOpen] = useState(
     event?.registration_open ?? true
   );
+  const [coverImageUrl, setCoverImageUrl] = useState(event?.cover_image_url ?? "");
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  async function handleFlyerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+
+    const supabase = createClient();
+    const fileExt = file.name.split(".").pop();
+    const fileName = `flyer-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("photos")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      setError(uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("photos").getPublicUrl(fileName);
+    setCoverImageUrl(urlData.publicUrl);
+    setUploading(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,6 +83,7 @@ export default function EventForm({ event }: { event?: Event }) {
           event_date: eventDate,
           location,
           registration_open: registrationOpen,
+          cover_image_url: coverImageUrl || null,
         })
         .eq("id", event.id);
 
@@ -78,6 +109,7 @@ export default function EventForm({ event }: { event?: Event }) {
           event_date: eventDate,
           location,
           registration_open: registrationOpen,
+          cover_image_url: coverImageUrl || null,
         })
         .select()
         .single();
@@ -161,6 +193,26 @@ export default function EventForm({ event }: { event?: Event }) {
             placeholder="e.g. Colombo or Online (Zoom)"
             className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
           />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700">Event Flyer / Cover Image (optional)</label>
+        <div className="mt-1 flex items-center gap-4">
+          <label className="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors whitespace-nowrap">
+            <Upload size={16} />
+            {uploading ? "Uploading..." : "Upload Flyer"}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFlyerUpload}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
+          {coverImageUrl && (
+            <img src={coverImageUrl} alt="" className="w-16 h-16 rounded-lg object-cover" />
+          )}
         </div>
       </div>
 

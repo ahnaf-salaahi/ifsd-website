@@ -39,6 +39,7 @@ export default function EventForm({ event }: { event?: Event }) {
   const [coverImageUrl, setCoverImageUrl] = useState(event?.cover_image_url ?? "");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   async function handleFlyerUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,6 +71,7 @@ export default function EventForm({ event }: { event?: Event }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaved(false);
     setError("");
 
     const supabase = createClient();
@@ -96,8 +98,12 @@ export default function EventForm({ event }: { event?: Event }) {
       const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
       syncEmbedding("event", event.id, text);
 
-      router.push(`/admin/events/${event.id}`);
-      router.refresh();
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => {
+        router.push(`/admin/events/${event.id}`);
+        router.refresh();
+      }, 700);
     } else {
       const slug = slugify(title);
       const { data, error } = await supabase
@@ -125,8 +131,12 @@ export default function EventForm({ event }: { event?: Event }) {
         syncEmbedding("event", data.id, text);
       }
 
-      router.push(`/admin/events/${data.id}`);
-      router.refresh();
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => {
+        router.push(`/admin/events/${data.id}`);
+        router.refresh();
+      }, 700);
     }
   }
 
@@ -231,10 +241,12 @@ export default function EventForm({ event }: { event?: Event }) {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+          disabled={saving || saved}
+          className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors disabled:opacity-90 whitespace-nowrap ${
+            saved ? "bg-green-600 text-white" : "bg-rose-600 text-white hover:bg-rose-700"
+          }`}
         >
-          {saving ? "Saving..." : event ? "Save Changes" : "Create Event"}
+          {saved ? "Saved \u2713" : saving ? "Saving..." : event ? "Save Changes" : "Create Event"}
         </button>
 
         {event && (

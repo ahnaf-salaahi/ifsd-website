@@ -25,6 +25,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
   const [imageUrl, setImageUrl] = useState(programme?.image_url ?? "");
   const [published, setPublished] = useState(programme?.published ?? true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
@@ -57,6 +58,7 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaved(false);
     setError("");
 
     const supabase = createClient();
@@ -95,8 +97,12 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
       }
     }
 
-    router.push("/admin/programmes");
-    router.refresh();
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => {
+      router.push("/admin/programmes");
+      router.refresh();
+    }, 700);
   }
 
   async function handleDelete() {
@@ -190,10 +196,12 @@ export default function ProgrammeForm({ programme }: { programme?: Programme }) 
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+          disabled={saving || saved}
+          className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors disabled:opacity-90 whitespace-nowrap ${
+            saved ? "bg-green-600 text-white" : "bg-rose-600 text-white hover:bg-rose-700"
+          }`}
         >
-          {saving ? "Saving..." : programme ? "Save Changes" : "Create Programme"}
+          {saved ? "Saved \u2713" : saving ? "Saving..." : programme ? "Save Changes" : "Create Programme"}
         </button>
 
         {programme && (

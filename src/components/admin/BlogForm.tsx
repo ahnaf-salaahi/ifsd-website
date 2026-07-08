@@ -29,17 +29,18 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
   const [author, setAuthor] = useState(blog?.author ?? "");
   const [published, setPublished] = useState(blog?.published ?? false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaved(false);
     setError("");
 
     const supabase = createClient();
 
     if (blog) {
-      // Update existing
       const { error } = await supabase
         .from("blogs")
         .update({ title, content, author, published })
@@ -58,7 +59,6 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
         deleteEmbedding("blog", blog.id);
       }
     } else {
-      // Create new
       const slug = slugify(title);
       const { data, error } = await supabase
         .from("blogs")
@@ -78,8 +78,12 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
       }
     }
 
-    router.push("/admin/blogs");
-    router.refresh();
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => {
+      router.push("/admin/blogs");
+      router.refresh();
+    }, 700);
   }
 
   async function handleDelete() {
@@ -151,10 +155,12 @@ export default function BlogForm({ blog }: { blog?: Blog }) {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
+          disabled={saving || saved}
+          className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-90 ${
+            saved ? "bg-green-600 text-white" : "bg-rose-600 text-white hover:bg-rose-700"
+          }`}
         >
-          {saving ? "Saving..." : blog ? "Save Changes" : "Create Post"}
+          {saved ? "Saved \u2713" : saving ? "Saving..." : blog ? "Save Changes" : "Create Post"}
         </button>
 
         {blog && (

@@ -41,11 +41,13 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
   const [applyLink, setApplyLink] = useState(scholarship?.apply_link ?? "");
   const [published, setPublished] = useState(scholarship?.published ?? true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaved(false);
     setError("");
 
     const supabase = createClient();
@@ -100,8 +102,12 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
       }
     }
 
-    router.push("/admin/scholarships");
-    router.refresh();
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => {
+      router.push("/admin/scholarships");
+      router.refresh();
+    }, 700);
   }
 
   async function handleDelete() {
@@ -238,10 +244,12 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving}
-          className="bg-rose-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+          disabled={saving || saved}
+          className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors disabled:opacity-90 whitespace-nowrap ${
+            saved ? "bg-green-600 text-white" : "bg-rose-600 text-white hover:bg-rose-700"
+          }`}
         >
-          {saving ? "Saving..." : scholarship ? "Save Changes" : "Create Scholarship"}
+          {saved ? "Saved \u2713" : saving ? "Saving..." : scholarship ? "Save Changes" : "Create Scholarship"}
         </button>
 
         {scholarship && (

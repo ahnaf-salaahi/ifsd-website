@@ -32,7 +32,7 @@ export default function Navbar() {
       src="/logo.png"
       alt="Institute for Skills Development"
       fill
-      sizes="80px"
+      sizes="100px"
       className="object-contain scale-[1]"
       priority
     />

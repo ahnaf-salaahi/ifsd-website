@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import {
   RegistrationFieldDefinition,
   RegistrationFieldType,
@@ -11,7 +11,7 @@ export async function getActiveRegistrationForm(
   ownerType: "event" | "scholarship",
   ownerId: string
 ): Promise<RegistrationFormDefinition | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const ownerColumn =
     ownerType === "event" ? "event_id" : "scholarship_id";
 
@@ -56,4 +56,3 @@ export async function getActiveRegistrationForm(
     ),
   };
 }
-

@@ -27,25 +27,29 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <Image
-              src="/logo.png"
-              alt="Institute for Skills Development"
-              width={52}
-              height={52}
-              className="object-contain shrink-0 h-13 w-13"
-            />
-            <div className="hidden sm:flex flex-col justify-center leading-[1.2]">
-              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                Institute for
-              </span>
-              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                Skills
-              </span>
-              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                Development
-              </span>
-            </div>
-          </Link>
+  <div className="relative h-[54px] w-[54px] shrink-0">
+    <Image
+      src="/logo.png"
+      alt="Institute for Skills Development"
+      fill
+      sizes="80px"
+      className="object-contain scale-[1]"
+      priority
+    />
+  </div>
+
+  <div className="hidden sm:flex flex-col justify-center leading-[1.2]">
+    <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+      Institute for
+    </span>
+    <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+      Skills
+    </span>
+    <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+      Development
+    </span>
+  </div>
+</Link>
 
           <ul className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {

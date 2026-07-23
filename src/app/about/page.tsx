@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { BookOpen, Users, ShieldCheck, Heart, Sparkles, Target } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 const values = [
   { icon: BookOpen, title: "Education First", desc: "We believe education is the foundation for personal and social development." },
@@ -15,32 +16,31 @@ const values = [
 export default function AboutPage() {
   return (
     <div>
-      <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          About Us
-        </motion.h1>
+      <PageHero
+        eyebrow="Who We Are"
+        title="About Us"
+        subtitle="A skills-focused educational and youth development organization, established in 2026."
+      />
+
+      {/* Intro */}
+      <section className="max-w-4xl mx-auto px-6 py-16 text-center">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600 leading-relaxed"
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-lg text-gray-600 leading-relaxed"
         >
-          Institute for Skills Development (Pvt) Ltd is a skills-focused
-          educational and youth development organization established in 2026.
-          We aim to create skilled, responsible, socially aware, and
-          future-ready youth through structured training, mentorship,
-          educational guidance, leadership development, and community
-          engagement programmes.
+          Institute for Skills Development (Pvt) Ltd aims to create skilled,
+          responsible, socially aware, and future-ready youth through
+          structured training, mentorship, educational guidance, leadership
+          development, and community engagement programmes.
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-4 text-gray-600 leading-relaxed"
         >
           We work with students, youth groups, community-based organizations,

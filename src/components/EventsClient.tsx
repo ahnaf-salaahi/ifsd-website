@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 type Event = {
   id: string;
@@ -30,26 +31,13 @@ export default function EventsClient({ events }: { events: Event[] }) {
 
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Events
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Webinars, training workshops, mentoring sessions, and leadership camps.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Events"
+        title="Events"
+        subtitle="Webinars, training workshops, mentoring sessions, and leadership camps."
+      />
 
-      <section className="max-w-6xl mx-auto px-6 pb-16">
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-16">
         <h2 className="text-2xl font-semibold text-gray-900 mb-8">Upcoming Events</h2>
         {upcoming.length === 0 ? (
           <p className="text-gray-500">No upcoming events right now — check back soon.</p>
@@ -73,24 +61,24 @@ export default function EventsClient({ events }: { events: Event[] }) {
                   />
                 )}
                 <div className="p-6 flex flex-col flex-1">
-                <h3 className="font-semibold text-gray-900 text-lg">{e.title}</h3>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed flex-1">
-                  {e.description}
-                </p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                  <CalendarDays size={16} /> {formatDate(e.event_date)}
-                </div>
-                {e.location && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin size={16} /> {e.location}
+                  <h3 className="font-semibold text-gray-900 text-lg">{e.title}</h3>
+                  <p className="mt-2 text-sm text-gray-600 leading-relaxed flex-1">
+                    {e.description}
+                  </p>
+                  <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+                    <CalendarDays size={16} /> {formatDate(e.event_date)}
                   </div>
-                )}
-                <Link
-                  href={`/events/${e.slug}`}
-                  className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
-                >
-                  {e.registration_open ? "View & Register" : "View Details"}
-                </Link>
+                  {e.location && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                      <MapPin size={16} /> {e.location}
+                    </div>
+                  )}
+                  <Link
+                    href={`/events/${e.slug}`}
+                    className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
+                  >
+                    {e.registration_open ? "View & Register" : "View Details"}
+                  </Link>
                 </div>
               </motion.div>
             ))}

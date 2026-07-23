@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 const stories = [
   { name: "Student Testimonial", role: "Scholarship Recipient", text: "Placeholder testimonial — replace with a real student's story once collected." },
@@ -12,26 +13,13 @@ const stories = [
 export default function SuccessStoriesPage() {
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Success Stories
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Real stories from students, parents, and mentors we've worked with.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Success Stories"
+        title="Success Stories"
+        subtitle="Real stories from students, parents, and mentors we've worked with."
+      />
 
-      <section className="max-w-5xl mx-auto px-6 pb-24 grid md:grid-cols-3 gap-6">
+      <section className="max-w-5xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-3 gap-6">
         {stories.map((s, i) => (
           <motion.div
             key={s.name}

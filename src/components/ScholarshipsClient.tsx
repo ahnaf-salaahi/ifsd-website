@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, GraduationCap } from "lucide-react";
-import { a } from "framer-motion/client";
+import PageHero from "@/components/PageHero";
 
 type Scholarship = {
   id: string;
@@ -44,32 +44,19 @@ export default function ScholarshipsClient({
 
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-10 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Scholarship Updates
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Stay updated with the latest scholarship announcements, deadlines, and eligibility requirements.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Edu First"
+        title="Scholarship Updates"
+        subtitle="Stay updated with the latest scholarship announcements, deadlines, and eligibility requirements."
+      />
 
       {/* Filters */}
-      <section className="max-w-6xl mx-auto px-6 flex flex-wrap gap-3 justify-center mb-10">
+      <section className="max-w-6xl mx-auto px-6 flex flex-wrap gap-3 justify-center mt-14 mb-10">
         {countries.map((c) => (
           <button
             key={c}
             onClick={() => setCountryFilter(c)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
               countryFilter === c
                 ? "bg-rose-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -84,7 +71,7 @@ export default function ScholarshipsClient({
           <button
             key={f}
             onClick={() => setFundingFilter(f)}
-            className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors ${
+            className={`px-4 py-2 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
               fundingFilter === f
                 ? "border-rose-600 text-rose-700 bg-rose-50"
                 : "border-gray-300 text-gray-600 hover:border-gray-400"
@@ -121,7 +108,7 @@ export default function ScholarshipsClient({
                     {s.description}
                   </p>
                   <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin size={16} /> {s.country} · {s.study_level}
+                    <MapPin size={16} /> {s.country} - {s.study_level}
                   </div>
                   {s.deadline && (
                     <div className="mt-2 flex items-center gap-2 text-sm">
@@ -149,7 +136,7 @@ export default function ScholarshipsClient({
                       href={s.apply_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
+                      className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors"
                     >
                       Apply Now
                     </a>

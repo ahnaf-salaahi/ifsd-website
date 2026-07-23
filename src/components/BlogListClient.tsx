@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { User, Calendar } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 type Blog = {
   id: string;
@@ -24,26 +25,13 @@ function formatDate(dateStr: string) {
 export default function BlogListClient({ blogs }: { blogs: Blog[] }) {
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Blog & News
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Guidance, tips, and updates for students and youth.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Blog & News"
+        title="Blog & News"
+        subtitle="Guidance, tips, and updates for students and youth."
+      />
 
-      <section className="max-w-5xl mx-auto px-6 pb-24">
+      <section className="max-w-5xl mx-auto px-6 pt-16 pb-24">
         {blogs.length === 0 ? (
           <p className="text-center text-gray-500">No articles published yet.</p>
         ) : (

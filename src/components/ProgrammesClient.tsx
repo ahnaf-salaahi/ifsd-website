@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 type Programme = {
   id: string;
@@ -17,26 +18,13 @@ export default function ProgrammesClient({ programmes }: { programmes: Programme
 
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Our Programmes
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Structured programmes designed for students, youth, and community groups.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Programmes"
+        title="Our Programmes"
+        subtitle="Structured programmes designed for students, youth, and community groups."
+      />
 
-      <section className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-2 gap-10">
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-2 gap-10">
         {/* Past Programmes */}
         <div>
           <div className="flex items-center gap-2 mb-6">

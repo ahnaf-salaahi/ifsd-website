@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -19,41 +20,63 @@ const navLinks = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-3">
-  <Image
-    src="/logo.png"
-    alt="Institute for Skills Development"
-    width={100}
-    height={100}
-    className="object-contain"
-  />
-  <span className="text-lg font-semibold text-gray-900 hidden sm:inline">
-    Institute for Skills Development
-  </span>
-</Link>
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Institute for Skills Development"
+              width={52}
+              height={52}
+              className="object-contain shrink-0 h-13 w-13"
+            />
+            <div className="hidden sm:flex flex-col justify-center leading-[1.2]">
+              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+                Institute for
+              </span>
+              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+                Skills
+              </span>
+              <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+                Development (PVT) LTD
+              </span>
+            </div>
+          </Link>
 
-          <ul className="hidden lg:flex items-center gap-7">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="relative text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors group"
-                >
-                  {link.label}
-                  <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-rose-600 transition-all duration-300 group-hover:w-full" />
-                </Link>
-              </li>
-            ))}
+          <ul className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive =
+                link.href === "/"
+                  ? pathname === "/"
+                  : pathname === link.href || pathname.startsWith(link.href + "/");
+
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={`relative flex items-center gap-1.5 text-base font-medium px-3.5 py-2 rounded-full transition-colors ${
+                      isActive
+                        ? "text-rose-700 bg-rose-50"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shadow-[0_0_8px_2px_rgba(225,29,72,0.5)]" />
+                    )}
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <Link
             href="/events"
-            className="hidden lg:inline-block bg-rose-600 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-rose-700 transition-colors whitespace-nowrap"
+            className="hidden lg:inline-block bg-rose-600 text-white text-base font-medium px-5 py-2.5 rounded-full hover:bg-rose-700 transition-colors whitespace-nowrap"
           >
             Book a Consultation
           </Link>
@@ -68,7 +91,6 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile menu now lives OUTSIDE the blurred header, as a direct sibling */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -80,13 +102,13 @@ export default function Navbar() {
               className="fixed inset-0 bg-black/50 z-[100] lg:hidden"
             />
             <motion.div
-  initial={{ x: "100%" }}
-  animate={{ x: 0 }}
-  exit={{ x: "100%" }}
-  transition={{ type: "tween", duration: 0.3 }}
-  className="fixed top-0 right-0 w-72 max-h-[85vh] z-[101] shadow-xl lg:hidden flex flex-col p-6 overflow-y-auto rounded-bl-2xl"
-  style={{ backgroundColor: "#ffffff" }}
->
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+              className="fixed top-0 right-0 w-72 max-h-[85vh] z-[101] shadow-xl lg:hidden flex flex-col p-6 overflow-y-auto rounded-bl-2xl"
+              style={{ backgroundColor: "#ffffff" }}
+            >
               <button
                 onClick={() => setIsOpen(false)}
                 className="self-end p-2 text-gray-700"
@@ -94,18 +116,32 @@ export default function Navbar() {
               >
                 <X size={26} />
               </button>
-              <ul className="flex flex-col gap-5 mt-6">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-base font-medium text-gray-800"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+              <ul className="flex flex-col gap-2 mt-6">
+                {navLinks.map((link) => {
+                  const isActive =
+                    link.href === "/"
+                      ? pathname === "/"
+                      : pathname === link.href || pathname.startsWith(link.href + "/");
+
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-2 text-base font-medium px-3 py-2 rounded-full transition-colors ${
+                          isActive
+                            ? "text-rose-700 bg-rose-50"
+                            : "text-gray-800"
+                        }`}
+                      >
+                        {isActive && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shadow-[0_0_8px_2px_rgba(225,29,72,0.5)]" />
+                        )}
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </motion.div>
           </>

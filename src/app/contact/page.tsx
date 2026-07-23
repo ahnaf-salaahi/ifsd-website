@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { useState } from "react";
+import PageHero from "@/components/PageHero";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -14,26 +15,13 @@ export default function ContactPage() {
 
   return (
     <div>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-semibold text-gray-900"
-        >
-          Contact Us
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-6 text-lg text-gray-600"
-        >
-          Have a question? Reach out — we're happy to help.
-        </motion.p>
-      </section>
+      <PageHero
+        eyebrow="Get In Touch"
+        title="Contact Us"
+        subtitle="Have a question? Reach out — we're happy to help."
+      />
 
-      <section className="max-w-5xl mx-auto px-6 pb-24 grid md:grid-cols-2 gap-10">
+      <section className="max-w-5xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-2 gap-10">
         {/* Info */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -112,7 +100,7 @@ export default function ContactPage() {
               />
               <button
                 type="submit"
-                className="w-full bg-rose-600 text-white py-3 rounded-lg font-medium hover:bg-rose-700 transition-colors"
+                className="w-full bg-rose-600 text-white py-3 rounded-full font-medium hover:bg-rose-700 transition-colors"
               >
                 Send Message
               </button>

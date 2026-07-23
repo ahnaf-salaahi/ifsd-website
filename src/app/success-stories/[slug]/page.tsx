@@ -1,4 +1,4 @@
-import { cache, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,10 +15,13 @@ import {
   Quote,
   Star,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import type { SuccessStoryRecord } from "@/lib/success-stories";
+import {
+  getPublicSuccessStory,
+  getSuccessStoryMetadataDefaults,
+  safeStoryVideoUrl,
+} from "@/lib/success-stories-public";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -30,17 +33,13 @@ type RelatedContent = {
   href?: string;
 };
 
-const getPublishedStory = cache(async (slug: string) => {
-  const supabase = await createClient();
-  return supabase
-    .from("success_stories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .maybeSingle();
-});
-
-function metadataDescription(story: SuccessStoryRecord) {
+function metadataDescription(story: {
+  seo_description: string | null;
+  short_summary: string | null;
+  testimonial_quote: string | null;
+  full_story: string;
+  person_name: string;
+}) {
   return (
     story.seo_description ||
     story.short_summary ||
@@ -57,80 +56,50 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { data } = await getPublishedStory(slug);
+  const [result, settings] = await Promise.all([
+    getPublicSuccessStory(slug),
+    getSuccessStoryMetadataDefaults().catch(() => null),
+  ]);
 
-  if (!data) {
+  if (!result) {
     return {
       title: "Success Story Not Found | Institute for Skills Development",
       robots: { index: false, follow: false },
     };
   }
 
-  const story = data as SuccessStoryRecord;
+  const story = result.story;
   return {
     title:
       story.seo_title ||
-      `${story.story_title} | Institute for Skills Development`,
+      `${story.story_title} | ${settings?.institute_name || "Institute for Skills Development"}`,
     description: metadataDescription(story),
+    alternates: { canonical: `/success-stories/${story.slug}` },
+    openGraph: {
+      title: story.seo_title || story.story_title,
+      description: metadataDescription(story),
+      images: ["/logo-v2.png"],
+    },
   };
 }
 
 export default async function SuccessStoryDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const { data, error } = await getPublishedStory(slug);
-
-  if (error) throw new Error(`Could not load Success Story: ${error.message}`);
-  if (!data) notFound();
-
-  const story = data as SuccessStoryRecord;
-  const supabase = await createClient();
-
-  let relatedContent: RelatedContent | null = null;
-  if (story.programme_id) {
-    const { data: programme } = await supabase
-      .from("programmes")
-      .select("title, slug")
-      .eq("id", story.programme_id)
-      .eq("published", true)
-      .maybeSingle();
-    if (programme) {
-      relatedContent = {
+  const result = await getPublicSuccessStory(slug);
+  if (!result) notFound();
+  const { story, profileImageUrl, coverImageUrl } = result;
+  const relatedContent: RelatedContent | null = result.programme
+    ? {
         type: "programme",
-        title: programme.title,
-        href: `/programmes/${programme.slug}`,
-      };
-    }
-  } else if (story.scholarship_id) {
-    const { data: scholarship } = await supabase
-      .from("scholarships")
-      .select("title")
-      .eq("id", story.scholarship_id)
-      .eq("published", true)
-      .maybeSingle();
-    if (scholarship) {
-      relatedContent = {
-        type: "scholarship",
-        title: scholarship.title,
-      };
-    }
-  }
-
-  const [profileResult, coverResult] = await Promise.all([
-    story.profile_image_path
-      ? supabase.storage
-          .from("content-images")
-          .createSignedUrl(story.profile_image_path, 3600)
-      : Promise.resolve({ data: null }),
-    story.cover_image_path
-      ? supabase.storage
-          .from("content-images")
-          .createSignedUrl(story.cover_image_path, 3600)
-      : Promise.resolve({ data: null }),
-  ]);
-  const profileImageUrl = profileResult.data?.signedUrl ?? null;
-  const coverImageUrl = coverResult.data?.signedUrl ?? null;
-  const youtubeEmbedUrl = story.video_url
-    ? getYouTubeEmbedUrl(story.video_url)
+        title: result.programme.title,
+        href: `/programmes/${result.programme.slug}`,
+      }
+    : result.scholarship
+      ? { type: "scholarship", title: result.scholarship.title }
+      : null;
+  const safeVideoUrl = safeStoryVideoUrl(story.video_url);
+  const youtubeEmbedUrl = safeVideoUrl
+    ? getYouTubeEmbedUrl(safeVideoUrl)
     : null;
 
   const facts = [
@@ -276,7 +245,7 @@ export default async function SuccessStoryDetailPage({ params }: PageProps) {
               </DetailSection>
             )}
 
-            {story.video_url && (
+            {safeVideoUrl && (
               <DetailSection title="Watch the story">
                 {youtubeEmbedUrl ? (
                   <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-sm">
@@ -290,7 +259,7 @@ export default async function SuccessStoryDetailPage({ params }: PageProps) {
                   </div>
                 ) : (
                   <a
-                    href={story.video_url}
+                    href={safeVideoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-3 text-sm font-medium text-white hover:bg-rose-700"

@@ -10,8 +10,10 @@ export default function SuccessStoriesError({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
-  }, [error]);
+    console.error("Public Success Story route failed", {
+      digest: error.digest,
+    });
+  }, [error.digest]);
 
   return (
     <div className="mx-auto max-w-xl px-6 py-24 text-center">

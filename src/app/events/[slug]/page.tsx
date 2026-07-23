@@ -28,5 +28,19 @@ export default async function EventDetailPage({
     .eq("event_id", event.id)
     .order("created_at", { ascending: true });
 
-  return <EventDetailClient event={event} photos={photos ?? []} />;
+  const { data: registrationForm } = await supabase
+    .from("forms")
+    .select("id")
+    .eq("event_id", event.id)
+    .eq("is_active", true)
+    .eq("is_public", true)
+    .maybeSingle();
+
+  return (
+    <EventDetailClient
+      event={event}
+      photos={photos ?? []}
+      hasActiveRegistrationForm={Boolean(registrationForm)}
+    />
+  );
 }

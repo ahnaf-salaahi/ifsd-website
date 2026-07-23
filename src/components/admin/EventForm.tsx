@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
 import { Upload } from "lucide-react";
+import RegistrationFormBuilder, {
+  RegistrationFormBuilderHandle,
+} from "@/components/admin/RegistrationFormBuilder";
 
 type Event = {
   id: string;
@@ -13,7 +16,7 @@ type Event = {
   description: string;
   event_date: string;
   location: string | null;
-  registration_open: boolean;
+  registration_open: boolean | null;
   cover_image_url: string | null;
 };
 
@@ -27,6 +30,8 @@ function slugify(text: string) {
 
 export default function EventForm({ event }: { event?: Event }) {
   const router = useRouter();
+  const formBuilderRef = useRef<RegistrationFormBuilderHandle>(null);
+  const [eventId, setEventId] = useState(event?.id ?? "");
   const [title, setTitle] = useState(event?.title ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
   const [eventDate, setEventDate] = useState(
@@ -76,7 +81,7 @@ export default function EventForm({ event }: { event?: Event }) {
 
     const supabase = createClient();
 
-    if (event) {
+    if (eventId) {
       const { error } = await supabase
         .from("events")
         .update({
@@ -87,7 +92,7 @@ export default function EventForm({ event }: { event?: Event }) {
           registration_open: registrationOpen,
           cover_image_url: coverImageUrl || null,
         })
-        .eq("id", event.id);
+        .eq("id", eventId);
 
       if (error) {
         setError(error.message);
@@ -95,13 +100,27 @@ export default function EventForm({ event }: { event?: Event }) {
         return;
       }
 
+      try {
+        await formBuilderRef.current?.save(eventId);
+      } catch (builderError) {
+        setError(
+          `Event details were saved, but the registration form was not: ${
+            builderError instanceof Error
+              ? builderError.message
+              : "Unknown error"
+          }`
+        );
+        setSaving(false);
+        return;
+      }
+
       const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
-      syncEmbedding("event", event.id, text);
+      syncEmbedding("event", eventId, text);
 
       setSaving(false);
       setSaved(true);
       setTimeout(() => {
-        router.push(`/admin/events/${event.id}`);
+        router.push(`/admin/events/${eventId}`);
         router.refresh();
       }, 700);
     } else {
@@ -127,6 +146,21 @@ export default function EventForm({ event }: { event?: Event }) {
       }
 
       if (data) {
+        setEventId(data.id);
+        try {
+          await formBuilderRef.current?.save(data.id);
+        } catch (builderError) {
+          setError(
+            `The event was created, but the registration form was not saved. You can safely save again. ${
+              builderError instanceof Error
+                ? builderError.message
+                : "Unknown error"
+            }`
+          );
+          setSaving(false);
+          return;
+        }
+
         const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
         syncEmbedding("event", data.id, text);
       }
@@ -145,6 +179,75 @@ export default function EventForm({ event }: { event?: Event }) {
     if (!confirm("Delete this event? This cannot be undone.")) return;
 
     const supabase = createClient();
+    const { data: registrationForm, error: formLookupError } = await supabase
+      .from("forms")
+      .select("id")
+      .eq("event_id", event.id)
+      .maybeSingle();
+
+    if (formLookupError) {
+      setError(`Could not check registration data: ${formLookupError.message}`);
+      return;
+    }
+
+    if (registrationForm) {
+      const { error: disableFormError } = await supabase
+        .from("forms")
+        .update({ is_active: false })
+        .eq("id", registrationForm.id);
+      if (disableFormError) {
+        setError(`Could not close registration: ${disableFormError.message}`);
+        return;
+      }
+
+      const { count: submissionCount, error: submissionsError } = await supabase
+        .from("form_submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("form_id", registrationForm.id);
+      if (submissionsError) {
+        setError(`Could not check registration submissions: ${submissionsError.message}`);
+        return;
+      }
+      if (submissionCount) {
+        setError(
+          "This event has registration submissions and cannot be deleted. It has been closed for new registrations."
+        );
+        return;
+      }
+
+      const { data: uploadIntents, error: uploadsError } = await supabase
+        .from("form_upload_intents")
+        .select("object_path")
+        .eq("form_id", registrationForm.id);
+
+      if (uploadsError) {
+        setError(`Could not check registration uploads: ${uploadsError.message}`);
+        return;
+      }
+
+      const uploadPaths = (uploadIntents ?? []).map(
+        (upload) => upload.object_path
+      );
+      if (uploadPaths.length) {
+        const { error: removeUploadsError } = await supabase.storage
+          .from("form-uploads")
+          .remove(uploadPaths);
+        if (removeUploadsError) {
+          setError(`Could not remove registration uploads: ${removeUploadsError.message}`);
+          return;
+        }
+      }
+
+      const { error: formDeleteError } = await supabase
+        .from("forms")
+        .delete()
+        .eq("id", registrationForm.id);
+      if (formDeleteError) {
+        setError(`Could not delete the registration form: ${formDeleteError.message}`);
+        return;
+      }
+    }
+
     const { error } = await supabase.from("events").delete().eq("id", event.id);
 
     if (error) {
@@ -184,7 +287,7 @@ export default function EventForm({ event }: { event?: Event }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="text-sm font-medium text-gray-700">Date & Time</label>
           <input
@@ -226,15 +329,13 @@ export default function EventForm({ event }: { event?: Event }) {
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={registrationOpen}
-          onChange={(e) => setRegistrationOpen(e.target.checked)}
-          className="rounded border-gray-300"
-        />
-        Registration Open
-      </label>
+      <RegistrationFormBuilder
+        ref={formBuilderRef}
+        ownerType="event"
+        ownerId={event?.id}
+        initialEnabled={registrationOpen}
+        onEnabledChange={setRegistrationOpen}
+      />
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 

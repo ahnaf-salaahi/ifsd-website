@@ -1,21 +1,37 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  MapPin,
+  MonitorSmartphone,
+  Star,
+} from "lucide-react";
 import PageHero from "@/components/PageHero";
 
-type Programme = {
+export type PublicProgramme = {
   id: string;
   title: string;
-  description: string;
-  category: "past" | "upcoming";
-  image_url: string | null;
+  slug: string;
+  short_summary: string | null;
+  full_description: string;
+  description: string | null;
+  category: string | null;
+  delivery_mode: string | null;
+  duration: string | null;
+  location: string | null;
+  featured: boolean;
+  display_image_url: string | null;
 };
 
-export default function ProgrammesClient({ programmes }: { programmes: Programme[] }) {
-  const past = programmes.filter((p) => p.category === "past");
-  const upcoming = programmes.filter((p) => p.category === "upcoming");
-
+export default function ProgrammesClient({
+  programmes,
+}: {
+  programmes: PublicProgramme[];
+}) {
   return (
     <div>
       <PageHero
@@ -24,78 +40,99 @@ export default function ProgrammesClient({ programmes }: { programmes: Programme
         subtitle="Structured programmes designed for students, youth, and community groups."
       />
 
-      <section className="max-w-6xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-2 gap-10">
-        {/* Past Programmes */}
-        <div>
-          <div className="flex items-center gap-2 mb-6">
-            <CheckCircle2 className="text-rose-600" size={22} />
-            <h2 className="text-xl font-semibold text-gray-900">Past Programmes</h2>
+      <section className="mx-auto max-w-6xl px-6 pb-24 pt-16">
+        {programmes.length === 0 ? (
+          <div className="rounded-2xl border border-gray-100 bg-white px-6 py-12 text-center shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">
+              No programmes published yet
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Please check back soon for upcoming learning opportunities.
+            </p>
           </div>
-          <div className="space-y-4">
-            {past.length === 0 ? (
-              <p className="text-gray-500 text-sm">No past programmes listed yet.</p>
-            ) : (
-              past.map((p, i) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm"
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {programmes.map((programme, index) => (
+              <motion.article
+                key={programme.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: (index % 6) * 0.06 }}
+                whileHover={{ y: -5 }}
+                className={`overflow-hidden rounded-2xl border shadow-sm transition-shadow hover:shadow-md ${
+                  programme.featured
+                    ? "border-rose-100 bg-rose-50"
+                    : "border-gray-100 bg-white"
+                }`}
+              >
+                <Link
+                  href={`/programmes/${programme.slug}`}
+                  className="flex h-full flex-col"
                 >
-                  {p.image_url && (
-                    <img
-                      src={p.image_url}
-                      alt={p.title}
-                      className="rounded-lg w-full h-40 object-cover mb-4"
-                    />
+                  {programme.display_image_url && (
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
+                      <Image
+                        src={programme.display_image_url}
+                        alt={programme.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-500 hover:scale-[1.03]"
+                      />
+                    </div>
                   )}
-                  <h3 className="font-semibold text-gray-900">{p.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                    {p.description}
-                  </p>
-                </motion.div>
-              ))
-            )}
-          </div>
-        </div>
 
-        {/* Upcoming / Planned Programmes */}
-        <div>
-          <div className="flex items-center gap-2 mb-6">
-            <Clock className="text-rose-600" size={22} />
-            <h2 className="text-xl font-semibold text-gray-900">Upcoming Programmes</h2>
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {programme.featured && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+                          <Star size={13} fill="currentColor" /> Featured
+                        </span>
+                      )}
+                      {programme.category && (
+                        <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs font-medium capitalize text-gray-600">
+                          {programme.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 className="mt-4 text-xl font-semibold text-gray-900">
+                      {programme.title}
+                    </h2>
+                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-gray-600">
+                      {programme.short_summary ||
+                        programme.full_description ||
+                        programme.description}
+                    </p>
+
+                    <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-500">
+                      {programme.duration && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock size={14} /> {programme.duration}
+                        </span>
+                      )}
+                      {programme.delivery_mode && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MonitorSmartphone size={14} />
+                          {programme.delivery_mode}
+                        </span>
+                      )}
+                      {programme.location && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin size={14} /> {programme.location}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-rose-700">
+                      View Programme <ArrowRight size={16} />
+                    </span>
+                  </div>
+                </Link>
+              </motion.article>
+            ))}
           </div>
-          <div className="space-y-4">
-            {upcoming.length === 0 ? (
-              <p className="text-gray-500 text-sm">No upcoming programmes listed yet.</p>
-            ) : (
-              upcoming.map((p, i) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="bg-rose-50 border border-rose-100 rounded-xl p-5"
-                >
-                  {p.image_url && (
-                    <img
-                      src={p.image_url}
-                      alt={p.title}
-                      className="rounded-lg w-full h-40 object-cover mb-4"
-                    />
-                  )}
-                  <h3 className="font-semibold text-gray-900">{p.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                    {p.description}
-                  </p>
-                </motion.div>
-              ))
-            )}
-          </div>
-        </div>
+        )}
       </section>
     </div>
   );

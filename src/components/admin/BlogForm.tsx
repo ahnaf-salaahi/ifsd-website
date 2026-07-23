@@ -11,7 +11,7 @@ type Blog = {
   slug: string;
   content: string;
   author: string | null;
-  published: boolean;
+  published: boolean | null;
 };
 
 function slugify(text: string) {

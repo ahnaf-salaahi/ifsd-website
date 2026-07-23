@@ -1,43 +1,72 @@
-"use client";
+import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
+import SuccessStoriesClient, {
+  type PublicSuccessStory,
+} from "@/components/SuccessStoriesClient";
 
-import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
-import PageHero from "@/components/PageHero";
+export const revalidate = 0;
 
-const stories = [
-  { name: "Student Testimonial", role: "Scholarship Recipient", text: "Placeholder testimonial — replace with a real student's story once collected." },
-  { name: "Parent Feedback", role: "Parent", text: "Placeholder feedback — replace with real parent testimonial once collected." },
-  { name: "Mentor Feedback", role: "Mentor", text: "Placeholder feedback — replace with a real mentor's story once collected." },
-];
+export const metadata: Metadata = {
+  title: "Success Stories | Institute for Skills Development",
+  description:
+    "Read stories from students, scholarship recipients, participants, parents, and mentors in our community.",
+};
 
-export default function SuccessStoriesPage() {
-  return (
-    <div>
-      <PageHero
-        eyebrow="Success Stories"
-        title="Success Stories"
-        subtitle="Real stories from students, parents, and mentors we've worked with."
-      />
+export default async function SuccessStoriesPage() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("success_stories")
+    .select(
+      "id, slug, person_name, story_title, short_summary, testimonial_quote, role_or_achievement, location, featured, profile_image_path, cover_image_path"
+    )
+    .eq("published", true)
+    .order("featured", { ascending: false })
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false });
 
-      <section className="max-w-5xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-3 gap-6">
-        {stories.map((s, i) => (
-          <motion.div
-            key={s.name}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm"
-          >
-            <Quote className="text-rose-600" size={26} />
-            <p className="mt-4 text-gray-700 text-sm leading-relaxed">{s.text}</p>
-            <div className="mt-5 border-t border-gray-100 pt-4">
-              <p className="font-semibold text-gray-900 text-sm">{s.name}</p>
-              <p className="text-gray-500 text-xs">{s.role}</p>
-            </div>
-          </motion.div>
-        ))}
-      </section>
-    </div>
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <h1 className="text-3xl font-semibold text-gray-900">
+          Success Stories are temporarily unavailable
+        </h1>
+        <p className="mt-4 text-gray-600">
+          We could not load the stories. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  const stories: PublicSuccessStory[] = await Promise.all(
+    (data ?? []).map(async (story) => {
+      const [profileResult, coverResult] = await Promise.all([
+        story.profile_image_path
+          ? supabase.storage
+              .from("content-images")
+              .createSignedUrl(story.profile_image_path, 3600)
+          : Promise.resolve({ data: null }),
+        story.cover_image_path
+          ? supabase.storage
+              .from("content-images")
+              .createSignedUrl(story.cover_image_path, 3600)
+          : Promise.resolve({ data: null }),
+      ]);
+
+      return {
+        id: story.id,
+        slug: story.slug,
+        person_name: story.person_name,
+        story_title: story.story_title,
+        short_summary: story.short_summary,
+        testimonial_quote: story.testimonial_quote,
+        role_or_achievement: story.role_or_achievement,
+        location: story.location,
+        featured: story.featured,
+        profile_image_url: profileResult.data?.signedUrl ?? null,
+        cover_image_url: coverResult.data?.signedUrl ?? null,
+      };
+    })
   );
+
+  return <SuccessStoriesClient stories={stories} />;
 }

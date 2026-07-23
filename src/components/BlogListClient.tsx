@@ -11,10 +11,11 @@ type Blog = {
   slug: string;
   content: string;
   author: string | null;
-  created_at: string;
+  created_at: string | null;
 };
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "Date unavailable";
   const d = new Date(dateStr);
   const day = String(d.getUTCDate()).padStart(2, "0");
   const month = String(d.getUTCMonth() + 1).padStart(2, "0");

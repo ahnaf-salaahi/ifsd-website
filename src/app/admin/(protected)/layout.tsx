@@ -1,34 +1,30 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { requireAdmin } from "@/lib/cms/auth";
+import { CmsError } from "@/lib/cms/errors";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  const { data: adminRecord } = await supabase
-    .from("admin_users")
-    .select("id, full_name")
-    .eq("id", user.id)
-    .single();
-
-  if (!adminRecord) {
-    redirect("/admin/login");
+  let fullName: string;
+  try {
+    const { administrator } = await requireAdmin();
+    fullName = administrator.full_name;
+  } catch (error) {
+    if (
+      error instanceof CmsError &&
+      (error.code === "unauthenticated" || error.code === "forbidden")
+    ) {
+      redirect("/admin/login");
+    }
+    throw error;
   }
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <AdminSidebar fullName={adminRecord.full_name} />
+      <AdminSidebar fullName={fullName} />
       <main className="flex-1 p-6 lg:p-8 min-w-0">{children}</main>
     </div>
   );

@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type EventType = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   event_date: string;
   location: string | null;
-  registration_open: boolean;
+  registration_open: boolean | null;
   cover_image_url: string | null;
 };
 
@@ -32,9 +34,11 @@ function formatDate(dateStr: string) {
 export default function EventDetailClient({
   event,
   photos,
+  hasActiveRegistrationForm,
 }: {
   event: EventType;
   photos: Photo[];
+  hasActiveRegistrationForm: boolean;
 }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -120,8 +124,26 @@ export default function EventDetailClient({
         </div>
       )}
 
-      {/* Registration form */}
-      {!isPast && event.registration_open && (
+      {/* Dynamic registration entry point */}
+      {!isPast && event.registration_open && hasActiveRegistrationForm && (
+        <div className="mt-12 bg-gray-50 border border-gray-100 rounded-2xl p-8">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Register for this Event
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Complete the event registration form to reserve your place.
+          </p>
+          <Link
+            href={`/events/${event.slug}/register`}
+            className="mt-6 inline-block w-full bg-rose-600 text-white py-3 rounded-lg text-center font-medium hover:bg-rose-700 transition-colors"
+          >
+            Register Now
+          </Link>
+        </div>
+      )}
+
+      {/* Legacy registration form retained for events not yet migrated */}
+      {!isPast && event.registration_open && !hasActiveRegistrationForm && (
         <div className="mt-12 bg-gray-50 border border-gray-100 rounded-2xl p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Register for this Event</h2>
 
@@ -132,7 +154,7 @@ export default function EventDetailClient({
               className="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl p-5 text-rose-800"
             >
               <CheckCircle2 size={22} />
-              You're registered! We'll be in touch with more details.
+              You&apos;re registered! We&apos;ll be in touch with more details.
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

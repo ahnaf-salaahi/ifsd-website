@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { syncEmbedding, deleteEmbedding } from "@/lib/syncEmbedding";
+import RegistrationFormBuilder, {
+  RegistrationFormBuilderHandle,
+} from "@/components/admin/RegistrationFormBuilder";
 
 type Scholarship = {
   id: string;
@@ -17,7 +20,7 @@ type Scholarship = {
   eligibility: string | null;
   required_documents: string | null;
   apply_link: string | null;
-  published: boolean;
+  published: boolean | null;
 };
 
 function slugify(text: string) {
@@ -30,6 +33,8 @@ function slugify(text: string) {
 
 export default function ScholarshipForm({ scholarship }: { scholarship?: Scholarship }) {
   const router = useRouter();
+  const formBuilderRef = useRef<RegistrationFormBuilderHandle>(null);
+  const [scholarshipId, setScholarshipId] = useState(scholarship?.id ?? "");
   const [title, setTitle] = useState(scholarship?.title ?? "");
   const [description, setDescription] = useState(scholarship?.description ?? "");
   const [country, setCountry] = useState(scholarship?.country ?? "");
@@ -64,11 +69,11 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
       published,
     };
 
-    if (scholarship) {
+    if (scholarshipId) {
       const { error } = await supabase
         .from("scholarships")
         .update(payload)
-        .eq("id", scholarship.id);
+        .eq("id", scholarshipId);
 
       if (error) {
         setError(error.message);
@@ -76,11 +81,25 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
         return;
       }
 
+      try {
+        await formBuilderRef.current?.save(scholarshipId);
+      } catch (builderError) {
+        setError(
+          `Scholarship details were saved, but the registration form was not: ${
+            builderError instanceof Error
+              ? builderError.message
+              : "Unknown error"
+          }`
+        );
+        setSaving(false);
+        return;
+      }
+
       if (published) {
         const text = `Scholarship: ${title}\n${description}\nCountry: ${country}\nFunding: ${fundingType}\nStudy Level: ${studyLevel}\nDeadline: ${deadline || "Not specified"}\nEligibility: ${eligibility || "N/A"}\nRequired Documents: ${requiredDocuments || "N/A"}`;
-        syncEmbedding("scholarship", scholarship.id, text);
+        syncEmbedding("scholarship", scholarshipId, text);
       } else {
-        deleteEmbedding("scholarship", scholarship.id);
+        deleteEmbedding("scholarship", scholarshipId);
       }
     } else {
       const slug = slugify(title);
@@ -92,6 +111,21 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
 
       if (error) {
         setError(error.message);
+        setSaving(false);
+        return;
+      }
+
+      setScholarshipId(data.id);
+      try {
+        await formBuilderRef.current?.save(data.id);
+      } catch (builderError) {
+        setError(
+          `The scholarship was created, but the registration form was not saved. You can safely save again. ${
+            builderError instanceof Error
+              ? builderError.message
+              : "Unknown error"
+          }`
+        );
         setSaving(false);
         return;
       }
@@ -115,6 +149,75 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
     if (!confirm("Delete this scholarship? This cannot be undone.")) return;
 
     const supabase = createClient();
+    const { data: registrationForm, error: formLookupError } = await supabase
+      .from("forms")
+      .select("id")
+      .eq("scholarship_id", scholarship.id)
+      .maybeSingle();
+
+    if (formLookupError) {
+      setError(`Could not check application data: ${formLookupError.message}`);
+      return;
+    }
+
+    if (registrationForm) {
+      const { error: disableFormError } = await supabase
+        .from("forms")
+        .update({ is_active: false })
+        .eq("id", registrationForm.id);
+      if (disableFormError) {
+        setError(`Could not close applications: ${disableFormError.message}`);
+        return;
+      }
+
+      const { count: submissionCount, error: submissionsError } = await supabase
+        .from("form_submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("form_id", registrationForm.id);
+      if (submissionsError) {
+        setError(`Could not check scholarship applications: ${submissionsError.message}`);
+        return;
+      }
+      if (submissionCount) {
+        setError(
+          "This scholarship has applications and cannot be deleted. It has been closed for new applications."
+        );
+        return;
+      }
+
+      const { data: uploadIntents, error: uploadsError } = await supabase
+        .from("form_upload_intents")
+        .select("object_path")
+        .eq("form_id", registrationForm.id);
+
+      if (uploadsError) {
+        setError(`Could not check application uploads: ${uploadsError.message}`);
+        return;
+      }
+
+      const uploadPaths = (uploadIntents ?? []).map(
+        (upload) => upload.object_path
+      );
+      if (uploadPaths.length) {
+        const { error: removeUploadsError } = await supabase.storage
+          .from("form-uploads")
+          .remove(uploadPaths);
+        if (removeUploadsError) {
+          setError(`Could not remove application uploads: ${removeUploadsError.message}`);
+          return;
+        }
+      }
+
+      const { error: formDeleteError } = await supabase
+        .from("forms")
+        .delete()
+        .eq("id", registrationForm.id);
+      if (formDeleteError) {
+        setError(`Could not delete the application form: ${formDeleteError.message}`);
+        return;
+      }
+    }
+
     const { error } = await supabase.from("scholarships").delete().eq("id", scholarship.id);
 
     if (error) {
@@ -154,7 +257,7 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className="text-sm font-medium text-gray-700">Country</label>
           <input
@@ -238,6 +341,13 @@ export default function ScholarshipForm({ scholarship }: { scholarship?: Scholar
         />
         Published (visible to the public)
       </label>
+
+      <RegistrationFormBuilder
+        ref={formBuilderRef}
+        ownerType="scholarship"
+        ownerId={scholarship?.id}
+        initialEnabled={false}
+      />
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 

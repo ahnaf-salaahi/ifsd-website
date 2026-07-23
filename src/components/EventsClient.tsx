@@ -12,7 +12,7 @@ type Event = {
   description: string;
   event_date: string;
   location: string | null;
-  registration_open: boolean;
+  registration_open: boolean | null;
   cover_image_url: string | null;
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, GraduationCap } from "lucide-react";
 import PageHero from "@/components/PageHero";
@@ -15,6 +16,7 @@ type Scholarship = {
   study_level: string;
   deadline: string | null;
   apply_link: string | null;
+  has_active_application_form: boolean;
 };
 
 export default function ScholarshipsClient({
@@ -131,15 +133,17 @@ export default function ScholarshipsClient({
                       </span>
                     </div>
                   )}
-                  {s.apply_link && (
-                    <a
-                      href={s.apply_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {s.has_active_application_form ? (
+                    <Link
+                      href={`/scholarships/${s.slug}/apply`}
                       className="mt-5 inline-block text-center bg-rose-600 text-white py-2.5 rounded-full text-sm font-medium hover:bg-rose-700 transition-colors"
                     >
                       Apply Now
-                    </a>
+                    </Link>
+                  ) : (
+                    <p className="mt-5 rounded-full bg-gray-100 px-4 py-2.5 text-center text-sm text-gray-500">
+                      Internal applications are not currently open.
+                    </p>
                   )}
                 </motion.div>
               );

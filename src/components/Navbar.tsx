@@ -27,12 +27,12 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-3 shrink-0">
-  <div className="object-contain">
+  <div className="object-contain relative w-[60px] h-[60px] shrink-0">
     <Image
       src="/logo.png"
       alt="Institute for Skills Development"
       fill
-      sizes="100px"
+      sizes="60px"
       className="object-contain scale-[1]"
       priority
     />

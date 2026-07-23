@@ -1,4 +1,4 @@
-import { cache, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,30 +15,25 @@ import {
   MapPin,
   MonitorSmartphone,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import type {
-  ProgrammeModuleRecord,
-  ProgrammeOutcomeRecord,
-  ProgrammeRecord,
-} from "@/lib/programmes";
+import {
+  getProgrammeMetadataDefaults,
+  getPublicProgramme,
+  safeProgrammeCta,
+} from "@/lib/programmes-public";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const getPublishedProgramme = cache(async (slug: string) => {
-  const supabase = await createClient();
-  return supabase
-    .from("programmes")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .maybeSingle();
-});
-
-function metadataDescription(programme: ProgrammeRecord) {
+function metadataDescription(programme: {
+  seo_description: string | null;
+  short_summary: string | null;
+  full_description: string;
+  description: string | null;
+  title: string;
+}) {
   const description =
     programme.seo_description ||
     programme.short_summary ||
@@ -53,7 +48,11 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { data: programme } = await getPublishedProgramme(slug);
+  const [result, settings] = await Promise.all([
+    getPublicProgramme(slug),
+    getProgrammeMetadataDefaults().catch(() => null),
+  ]);
+  const programme = result?.programme;
 
   if (!programme) {
     return {
@@ -62,59 +61,29 @@ export async function generateMetadata({
     };
   }
 
-  const typedProgramme = programme as ProgrammeRecord;
   return {
     title:
-      typedProgramme.seo_title ||
-      `${typedProgramme.title} | Institute for Skills Development`,
-    description: metadataDescription(typedProgramme),
+      programme.seo_title ||
+      `${programme.title} | ${settings?.institute_name || "Institute for Skills Development"}`,
+    description: metadataDescription(programme),
+    alternates: { canonical: `/programmes/${programme.slug}` },
+    openGraph: {
+      title: programme.seo_title || programme.title,
+      description: metadataDescription(programme),
+      images: ["/logo-v2.png"],
+    },
   };
 }
 
 export default async function ProgrammeDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const { data, error } = await getPublishedProgramme(slug);
-
-  if (error) {
-    throw new Error(`Could not load Programme: ${error.message}`);
-  }
-  if (!data) notFound();
-
-  const programme = data as ProgrammeRecord;
-  const supabase = await createClient();
-  const [
-    { data: modules, error: modulesError },
-    { data: outcomes, error: outcomesError },
-  ] = await Promise.all([
-    supabase
-      .from("programme_modules")
-      .select("id, programme_id, title, description, display_order")
-      .eq("programme_id", programme.id)
-      .order("display_order", { ascending: true })
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("programme_learning_outcomes")
-      .select("id, programme_id, outcome, display_order")
-      .eq("programme_id", programme.id)
-      .order("display_order", { ascending: true })
-      .order("created_at", { ascending: true }),
-  ]);
-
-  if (modulesError || outcomesError) {
-    throw new Error(
-      `Could not load Programme details: ${
-        modulesError?.message ?? outcomesError?.message
-      }`
-    );
-  }
-
-  let displayImageUrl = programme.image_url;
-  if (programme.featured_image_path) {
-    const { data: signedImage } = await supabase.storage
-      .from("content-images")
-      .createSignedUrl(programme.featured_image_path, 3600);
-    displayImageUrl = signedImage?.signedUrl ?? displayImageUrl;
-  }
+  const result = await getPublicProgramme(slug);
+  if (!result) notFound();
+  const { programme, modules, outcomes, registrationStatus, hasAvailableForm, displayImageUrl } = result;
+  const registrationCta =
+    registrationStatus === "open" && hasAvailableForm
+      ? safeProgrammeCta(programme.application_link)
+      : null;
 
   const facts = [
     programme.duration && {
@@ -173,9 +142,9 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
                   Featured Programme
                 </span>
               )}
-              {programme.category && (
+              {(programme.programme_categories?.name || programme.category) && (
                 <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium capitalize text-slate-300">
-                  {programme.category}
+                  {programme.programme_categories?.name || programme.category}
                 </span>
               )}
             </div>
@@ -236,7 +205,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
             {(modules ?? []).length > 0 && (
               <DetailSection title="Course modules">
                 <div className="space-y-3">
-                  {(modules as ProgrammeModuleRecord[]).map((module, index) => (
+                  {modules.map((module, index) => (
                     <div
                       key={module.id}
                       className="rounded-xl border border-gray-100 bg-gray-50 p-5"
@@ -265,7 +234,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
             {(outcomes ?? []).length > 0 && (
               <DetailSection title="Learning outcomes">
                 <ul className="space-y-3">
-                  {(outcomes as ProgrammeOutcomeRecord[]).map((outcome) => (
+                  {outcomes.map((outcome) => (
                     <li
                       key={outcome.id}
                       className="flex items-start gap-3 text-sm leading-6 text-gray-700 sm:text-base"
@@ -313,30 +282,28 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
                 content={programme.contact_details}
               />
             )}
-            {programme.application_link && (
+            {(registrationCta || programme.registration_enabled) && (
               <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6">
                 <h2 className="font-semibold text-gray-900">
                   Interested in this Programme?
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-gray-600">
-                  Use the link below to apply or contact the Programme team.
+                  {registrationCta
+                    ? "Registration is currently open."
+                    : registrationStatus === "not_yet_open"
+                      ? "Registration has not opened yet."
+                      : "Registration is currently unavailable."}
                 </p>
-                <a
-                  href={programme.application_link}
-                  target={
-                    /^https?:\/\//i.test(programme.application_link)
-                      ? "_blank"
-                      : undefined
-                  }
-                  rel={
-                    /^https?:\/\//i.test(programme.application_link)
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-rose-700"
-                >
-                  Apply or enquire <ExternalLink size={16} />
-                </a>
+                {registrationCta && (
+                  <a
+                    href={registrationCta}
+                    target={registrationCta.startsWith("https://") ? "_blank" : undefined}
+                    rel={registrationCta.startsWith("https://") ? "noopener noreferrer" : undefined}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-rose-700"
+                  >
+                    Register now <ExternalLink size={16} />
+                  </a>
+                )}
               </div>
             )}
           </aside>

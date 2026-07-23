@@ -1,30 +1,51 @@
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
-import ProgrammesClient, {
-  type PublicProgramme,
-} from "@/components/ProgrammesClient";
+import ProgrammesClient from "@/components/ProgrammesClient";
+import {
+  getProgrammeMetadataDefaults,
+  listPublicProgrammeCategories,
+  listPublicProgrammes,
+  parseProgrammeFilters,
+} from "@/lib/programmes-public";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Programmes | Institute for Skills Development",
-  description:
-    "Explore published skills, education, leadership, and community development programmes.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getProgrammeMetadataDefaults().catch(() => null);
+  return {
+    title: `Programmes | ${settings?.institute_name || "Institute for Skills Development"}`,
+    description:
+      "Explore published skills, education, leadership, and community development programmes.",
+    openGraph: {
+      title: "Programmes | Institute for Skills Development",
+      description:
+        "Explore published skills, education, leadership, and community development programmes.",
+      images: ["/logo-v2.png"],
+    },
+  };
+}
 
-export default async function ProgrammesPage() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("programmes")
-    .select(
-      "id, title, slug, short_summary, full_description, description, category, delivery_mode, duration, location, featured, featured_image_path, image_url"
-    )
-    .eq("published", true)
-    .order("featured", { ascending: false })
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: false });
-
-  if (error) {
+export default async function ProgrammesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const filters = parseProgrammeFilters(await searchParams);
+  let loaded:
+    | {
+        result: Awaited<ReturnType<typeof listPublicProgrammes>>;
+        categories: Awaited<ReturnType<typeof listPublicProgrammeCategories>>;
+      }
+    | null = null;
+  try {
+    const [result, categories] = await Promise.all([
+      listPublicProgrammes(filters),
+      listPublicProgrammeCategories(),
+    ]);
+    loaded = { result, categories };
+  } catch {
+    loaded = null;
+  }
+  if (!loaded) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
         <h1 className="text-3xl font-semibold text-gray-900">
@@ -36,34 +57,11 @@ export default async function ProgrammesPage() {
       </div>
     );
   }
-
-  const programmes: PublicProgramme[] = await Promise.all(
-    (data ?? []).map(async (programme) => {
-      let displayImageUrl = programme.image_url;
-
-      if (programme.featured_image_path) {
-        const { data: signedImage } = await supabase.storage
-          .from("content-images")
-          .createSignedUrl(programme.featured_image_path, 3600);
-        displayImageUrl = signedImage?.signedUrl ?? displayImageUrl;
-      }
-
-      return {
-        id: programme.id,
-        title: programme.title,
-        slug: programme.slug,
-        short_summary: programme.short_summary,
-        full_description: programme.full_description,
-        description: programme.description,
-        category: programme.category,
-        delivery_mode: programme.delivery_mode,
-        duration: programme.duration,
-        location: programme.location,
-        featured: programme.featured,
-        display_image_url: displayImageUrl,
-      };
-    })
+  return (
+    <ProgrammesClient
+      result={loaded.result}
+      categories={loaded.categories}
+      filters={filters}
+    />
   );
-
-  return <ProgrammesClient programmes={programmes} />;
 }

@@ -10,8 +10,10 @@ export default function ProgrammesError({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
-  }, [error]);
+    console.error("Public Programme route failed", {
+      digest: error.digest,
+    });
+  }, [error.digest]);
 
   return (
     <div className="mx-auto max-w-xl px-6 py-24 text-center">

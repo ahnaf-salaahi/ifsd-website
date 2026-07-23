@@ -42,7 +42,7 @@ export default function Navbar() {
                 Skills
               </span>
               <span className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                Development (PVT) LTD
+                Development
               </span>
             </div>
           </Link>

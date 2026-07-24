@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -93,14 +94,19 @@ export default function EventPhotoUpload({
 
       <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-4">
         {photos.map((p) => (
-          <div key={p.id} className="relative group">
-            <img
+          <div key={p.id} className="group relative h-32 overflow-hidden rounded-xl">
+            <Image
               src={p.photo_url}
-              alt=""
-              className="rounded-xl w-full h-32 object-cover"
+              alt={p.caption || "Event photo"}
+              fill
+              unoptimized
+              sizes="(max-width: 640px) 50vw, 33vw"
+              className="object-cover"
             />
             <button
+              type="button"
               onClick={() => handleDeletePhoto(p.id)}
+              aria-label="Delete Event photo"
               className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <Trash2 size={14} className="text-red-600" />

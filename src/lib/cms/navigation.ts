@@ -72,7 +72,8 @@ async function getPublicNavigation(location: "header" | "footer") {
     .eq("location", location)
     .eq("is_visible", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(200);
   if (error) throw databaseError(`navigation.public.${location}`, error);
   return buildNavigationTree(data);
 }

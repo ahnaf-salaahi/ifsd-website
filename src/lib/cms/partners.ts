@@ -18,7 +18,8 @@ async function listVisiblePartners(filters: {
     .select(PUBLIC_PARTNER_COLUMNS)
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(48);
   if (filters.featured) query = query.eq("is_featured", true);
   if (filters.partnerType) {
     if (!/^[a-z][a-z0-9_]{1,79}$/.test(filters.partnerType)) {

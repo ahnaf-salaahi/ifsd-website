@@ -26,7 +26,8 @@ export async function listFeaturedProgrammes(): Promise<FeaturedProgramme[]> {
     .eq("is_active", true)
     .neq("programmes.programme_state", "cancelled")
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(12);
   if (error) throw databaseError("featured.programmes.public", error);
 
   return data.map((item) => ({
@@ -56,7 +57,8 @@ export async function listFeaturedScholarships(): Promise<
     )
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(12);
   if (error) throw databaseError("featured.scholarships.public", error);
 
   return data.map((item) => ({
@@ -84,7 +86,8 @@ export async function listFeaturedStories(): Promise<FeaturedStory[]> {
     )
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(12);
   if (error) throw databaseError("featured.stories.public", error);
 
   return data.map((item) => ({

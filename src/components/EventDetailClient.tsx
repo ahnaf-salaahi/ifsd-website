@@ -1,213 +1,317 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, CheckCircle2 } from "lucide-react";
+import { CalendarDays, CheckCircle2, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import type { getPublicEvent } from "@/lib/events-public";
 
-type EventType = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  event_date: string;
-  location: string | null;
-  registration_open: boolean | null;
-  cover_image_url: string | null;
-};
-
-type Photo = {
-  id: string;
-  photo_url: string;
-  caption: string | null;
-};
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const year = d.getUTCFullYear();
-  return `${day}/${month}/${year}`;
-}
+type PublicEventDetail = NonNullable<
+  Awaited<ReturnType<typeof getPublicEvent>>
+>;
 
 export default function EventDetailClient({
-  event,
-  photos,
-  hasActiveRegistrationForm,
+  detail,
 }: {
-  event: EventType;
-  photos: Photo[];
-  hasActiveRegistrationForm: boolean;
+  detail: PublicEventDetail;
 }) {
+  const { event, photos, lifecycle, registrationStatus, coverImageUrl } =
+    detail;
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const isPast = new Date(event.event_date) < new Date();
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(eventObject: React.FormEvent) {
+    eventObject.preventDefault();
+    if (status === "submitting") return;
     setStatus("submitting");
-    setErrorMsg("");
+    setErrorMessage("");
 
     const supabase = createClient();
     const { error } = await supabase.from("event_registrations").insert({
       event_id: event.id,
-      full_name: fullName,
-      email,
-      phone,
-      notes,
+      full_name: fullName.trim(),
+      email: email.trim(),
+      phone: phone.trim() || null,
+      notes: notes.trim() || null,
     });
 
     if (error) {
       setStatus("error");
-      setErrorMsg(error.message);
-    } else {
-      setStatus("success");
+      setErrorMessage(
+        "Your registration could not be submitted. Please review the form and try again.",
+      );
+      return;
     }
+    setStatus("success");
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-16 pb-24">
-      
-      {event.cover_image_url && (
-        <motion.img
+    <div className="mx-auto max-w-4xl px-6 pb-24 pt-16">
+      <Link href="/events" className="text-sm font-medium text-rose-700">
+        ← Back to Events
+      </Link>
+      {coverImageUrl && (
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          src={event.cover_image_url}
-          alt={event.title}
-          className="w-full max-h-[500px] object-contain bg-gray-50 rounded-2xl mb-8"
-        />
+          className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl bg-gray-50"
+        >
+          <Image
+            src={coverImageUrl}
+            alt={`Flyer for ${event.title}`}
+            fill
+            priority
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 896px"
+            className="object-contain"
+          />
+        </motion.div>
       )}
-      
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-3xl md:text-4xl font-semibold text-gray-900"
+        className="mt-8 text-3xl font-semibold text-gray-900 md:text-4xl"
       >
         {event.title}
       </motion.h1>
-
-      <div className="mt-4 flex flex-wrap gap-6 text-gray-600">
-        <div className="flex items-center gap-2">
-          <CalendarDays size={18} /> {formatDate(event.event_date)}
-        </div>
-        {event.location && (
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <StatusBadge
+          label={
+            lifecycle === "registration_open"
+              ? "Registration open"
+              : lifecycle === "upcoming"
+                ? "Upcoming"
+                : "Completed"
+          }
+        />
+        {lifecycle !== "registration_open" && (
+          <StatusBadge label={registrationLabel(registrationStatus)} />
+        )}
+      </div>
+      <div className="mt-5 flex flex-wrap gap-6 text-gray-600">
+        {event.event_date ? (
+          <time
+            dateTime={event.event_date}
+            className="flex items-center gap-2"
+          >
+            <CalendarDays size={18} aria-hidden />
+            {formatDateTime(event.event_date)}
+          </time>
+        ) : (
           <div className="flex items-center gap-2">
-            <MapPin size={18} /> {event.location}
+            <CalendarDays size={18} aria-hidden />
+            Date to be announced
+          </div>
+        )}
+        {event.location && (
+          <div className="flex min-w-0 items-start gap-2 break-words">
+            <MapPin size={18} className="mt-0.5 shrink-0" aria-hidden />
+            {event.location}
           </div>
         )}
       </div>
+      <p className="mt-6 whitespace-pre-line break-words leading-relaxed text-gray-700">
+        {event.description}
+      </p>
 
-      <p className="mt-6 text-gray-700 leading-relaxed">{event.description}</p>
-
-      {/* Photo gallery for past events */}
       {photos.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Event Photos</h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {photos.map((p) => (
-              <img
-                key={p.id}
-                src={p.photo_url}
-                alt={p.caption ?? event.title}
-                className="rounded-xl w-full h-48 object-cover"
-              />
+        <section className="mt-12">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+            Event Photos
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100"
+              >
+                <Image
+                  src={photo.photoUrl}
+                  alt={photo.caption || `Photo from ${event.title}`}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Dynamic registration entry point */}
-      {!isPast && event.registration_open && hasActiveRegistrationForm && (
-        <div className="mt-12 bg-gray-50 border border-gray-100 rounded-2xl p-8">
+      {registrationStatus === "open_internal" && (
+        <section className="mt-12 rounded-2xl border border-gray-100 bg-gray-50 p-8">
           <h2 className="text-xl font-semibold text-gray-900">
             Register for this Event
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Complete the event registration form to reserve your place.
+            Complete the Event registration form to reserve your place.
           </p>
           <Link
             href={`/events/${event.slug}/register`}
-            className="mt-6 inline-block w-full bg-rose-600 text-white py-3 rounded-lg text-center font-medium hover:bg-rose-700 transition-colors"
+            className="mt-6 inline-block w-full rounded-lg bg-rose-600 py-3 text-center font-medium text-white hover:bg-rose-700"
           >
             Register Now
           </Link>
-        </div>
+        </section>
       )}
 
-      {/* Legacy registration form retained for events not yet migrated */}
-      {!isPast && event.registration_open && !hasActiveRegistrationForm && (
-        <div className="mt-12 bg-gray-50 border border-gray-100 rounded-2xl p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Register for this Event</h2>
-
+      {registrationStatus === "open_legacy" && (
+        <section className="mt-12 rounded-2xl border border-gray-100 bg-gray-50 p-8">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">
+            Register for this Event
+          </h2>
           {status === "success" ? (
             <motion.div
+              role="status"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl p-5 text-rose-800"
+              className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-5 text-rose-800"
             >
-              <CheckCircle2 size={22} />
-              You&apos;re registered! We&apos;ll be in touch with more details.
+              <CheckCircle2 size={22} aria-hidden />
+              You&apos;re registered. We&apos;ll be in touch with more details.
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Full Name"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-              <input
-                required
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email Address"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone Number"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any questions or notes? (optional)"
-                rows={3}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-
+              <Field label="Full name" name="legacy-event-full-name">
+                <input
+                  id="legacy-event-full-name"
+                  name="full_name"
+                  required
+                  maxLength={200}
+                  autoComplete="name"
+                  value={fullName}
+                  onChange={(change) => setFullName(change.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </Field>
+              <Field label="Email address" name="legacy-event-email">
+                <input
+                  id="legacy-event-email"
+                  name="email"
+                  required
+                  type="email"
+                  maxLength={320}
+                  autoComplete="email"
+                  value={email}
+                  onChange={(change) => setEmail(change.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </Field>
+              <Field label="Phone number" name="legacy-event-phone">
+                <input
+                  id="legacy-event-phone"
+                  name="phone"
+                  maxLength={50}
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(change) => setPhone(change.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </Field>
+              <Field
+                label="Questions or notes (optional)"
+                name="legacy-event-notes"
+              >
+                <textarea
+                  id="legacy-event-notes"
+                  name="notes"
+                  maxLength={2000}
+                  rows={3}
+                  value={notes}
+                  onChange={(change) => setNotes(change.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </Field>
               {status === "error" && (
-                <p className="text-red-600 text-sm">{errorMsg}</p>
+                <p role="alert" className="text-sm text-red-600">
+                  {errorMessage}
+                </p>
               )}
-
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-rose-600 text-white py-3 rounded-lg font-medium hover:bg-rose-700 transition-colors disabled:opacity-60"
+                aria-disabled={status === "submitting"}
+                className="w-full rounded-lg bg-rose-600 py-3 font-medium text-white hover:bg-rose-700 disabled:opacity-60"
               >
-                {status === "submitting" ? "Submitting..." : "Register Now"}
+                {status === "submitting" ? "Submitting…" : "Register Now"}
               </button>
             </form>
           )}
-        </div>
+        </section>
       )}
 
-      {isPast && (
-        <div className="mt-12 bg-gray-50 border border-gray-100 rounded-2xl p-6 text-gray-600 text-center">
-          This event has already taken place.
+      {(registrationStatus === "closed" ||
+        registrationStatus === "disabled") && (
+        <div
+          role="status"
+          className="mt-12 rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center text-gray-600"
+        >
+          {lifecycle === "completed"
+            ? "This Event has already taken place."
+            : registrationStatus === "disabled"
+              ? "Registration is not available for this Event."
+              : "Registration for this Event is closed."}
         </div>
       )}
     </div>
   );
+}
+
+const INPUT_CLASS =
+  "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500";
+
+function Field({
+  label,
+  name,
+  children,
+}: {
+  label: string;
+  name: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function StatusBadge({ label }: { label: string }) {
+  return (
+    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+      {label}
+    </span>
+  );
+}
+
+function registrationLabel(
+  value: PublicEventDetail["registrationStatus"],
+) {
+  if (value === "open_internal" || value === "open_legacy") {
+    return "Registration open";
+  }
+  if (value === "disabled") return "Registration unavailable";
+  return "Registration closed";
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Asia/Colombo",
+  }).format(new Date(value));
 }

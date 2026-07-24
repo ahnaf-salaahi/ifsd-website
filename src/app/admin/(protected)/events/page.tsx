@@ -4,7 +4,8 @@ import { Plus, Pencil } from "lucide-react";
 
 export const revalidate = 0;
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "To be announced";
   const d = new Date(dateStr);
   const day = String(d.getUTCDate()).padStart(2, "0");
   const month = String(d.getUTCMonth() + 1).padStart(2, "0");

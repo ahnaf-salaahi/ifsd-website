@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 import {
   getPublicSuccessStory,
-  getSuccessStoryMetadataDefaults,
   safeStoryVideoUrl,
 } from "@/lib/success-stories-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -56,14 +56,11 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const [result, settings] = await Promise.all([
-    getPublicSuccessStory(slug),
-    getSuccessStoryMetadataDefaults().catch(() => null),
-  ]);
+  const result = await getPublicSuccessStory(slug);
 
   if (!result) {
     return {
-      title: "Success Story Not Found | Institute for Skills Development",
+      title: `Success Story Not Found | ${SITE_NAME}`,
       robots: { index: false, follow: false },
     };
   }
@@ -72,7 +69,7 @@ export async function generateMetadata({
   return {
     title:
       story.seo_title ||
-      `${story.story_title} | ${settings?.institute_name || "Institute for Skills Development"}`,
+      `${story.story_title} | ${SITE_NAME}`,
     description: metadataDescription(story),
     alternates: { canonical: `/success-stories/${story.slug}` },
     openGraph: {

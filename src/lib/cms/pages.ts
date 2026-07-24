@@ -196,7 +196,8 @@ export async function getOrderedPublishedSections(pageId: string) {
     .eq("status", "published")
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(100);
   if (error) throw databaseError("sections.public.list", error);
   return data;
 }

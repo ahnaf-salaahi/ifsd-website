@@ -6,17 +6,23 @@ import {
   listPublicProgrammes,
   parseProgrammeFilters,
 } from "@/lib/programmes-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getProgrammeMetadataDefaults().catch(() => null);
   return {
-    title: `Programmes | ${settings?.institute_name || "Institute for Skills Development"}`,
+    title: `Programmes | ${SITE_NAME}`,
     description:
       "Explore published skills, education, leadership, and community development programmes.",
+    alternates: { canonical: "/programmes" },
+    robots: {
+      index: settings?.default_robots_index ?? true,
+      follow: settings?.default_robots_follow ?? true,
+    },
     openGraph: {
-      title: "Programmes | Institute for Skills Development",
+      title: `Programmes | ${SITE_NAME}`,
       description:
         "Explore published skills, education, leadership, and community development programmes.",
       images: ["/logo-v2.png"],

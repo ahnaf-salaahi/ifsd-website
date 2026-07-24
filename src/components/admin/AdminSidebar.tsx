@@ -7,15 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, FileText, CalendarDays, Users, GraduationCap, ListChecks, Menu, X,
   MessageSquareQuote,
-  PanelsTopLeft,
-  Navigation,
-  Settings,
-  MapPin,
-  Handshake,
-  CircleHelp,
-  ChartNoAxesColumnIncreasing,
-  Images,
-  Sparkles,
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -31,29 +22,6 @@ const contentItems = [
     icon: MessageSquareQuote,
   },
   { href: "/admin/registrations", label: "Registrations", icon: Users },
-];
-
-const cmsItems = [
-  { href: "/admin/cms", label: "CMS Dashboard", icon: PanelsTopLeft },
-  { href: "/admin/cms/pages", label: "Pages", icon: FileText },
-  { href: "/admin/cms/navigation", label: "Navigation", icon: Navigation },
-  { href: "/admin/cms/settings", label: "Site Settings", icon: Settings },
-  { href: "/admin/cms/offices", label: "Offices", icon: MapPin },
-  { href: "/admin/cms/team", label: "Team", icon: Users },
-  { href: "/admin/cms/partners", label: "Partners", icon: Handshake },
-  {
-    href: "/admin/cms/testimonials",
-    label: "Testimonials",
-    icon: MessageSquareQuote,
-  },
-  { href: "/admin/cms/faqs", label: "FAQs", icon: CircleHelp },
-  {
-    href: "/admin/cms/statistics",
-    label: "Statistics",
-    icon: ChartNoAxesColumnIncreasing,
-  },
-  { href: "/admin/cms/featured", label: "Featured", icon: Sparkles },
-  { href: "/admin/cms/media", label: "Media Library", icon: Images },
 ];
 
 export default function AdminSidebar({ fullName }: { fullName: string }) {
@@ -84,28 +52,6 @@ export default function AdminSidebar({ fullName }: { fullName: string }) {
             {item.label}
           </Link>
         ))}
-        </div>
-        <p className="mb-2 mt-6 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
-          Website CMS
-        </p>
-        <div className="space-y-1">
-          {cmsItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
-                pathname === item.href ||
-                (item.href !== "/admin/cms" &&
-                  pathname.startsWith(`${item.href}/`))
-                  ? "bg-rose-50 text-rose-700"
-                  : "text-gray-700 hover:bg-rose-50 hover:text-rose-700"
-              }`}
-            >
-              <item.icon size={18} className="shrink-0" />
-              {item.label}
-            </Link>
-          ))}
         </div>
       </nav>
       <div className="p-4 border-t border-gray-100">

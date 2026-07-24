@@ -8,13 +8,6 @@ import FormSubmissionDetailClient, {
 
 export const revalidate = 0;
 
-type SubmissionStatus =
-  | "pending"
-  | "reviewing"
-  | "shortlisted"
-  | "approved"
-  | "rejected";
-
 function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
     dateStyle: "long",
@@ -31,7 +24,7 @@ export default async function AdminSubmissionDetailPage({
   const supabase = await createClient();
   const { data: submission } = await supabase
     .from("form_submissions")
-    .select("id, form_id, status, admin_notes, submitted_at")
+    .select("id, form_id, submitted_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -108,11 +101,8 @@ export default async function AdminSubmissionDetailPage({
 
       <FormSubmissionDetailClient
         submissionId={submission.id}
-        initialStatus={submission.status as SubmissionStatus}
-        initialNotes={submission.admin_notes ?? ""}
         answers={answers}
       />
     </div>
   );
 }
-

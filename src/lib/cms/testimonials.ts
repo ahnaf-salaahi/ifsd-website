@@ -17,8 +17,11 @@ async function listVisibleTestimonials(featuredOnly: boolean) {
     .eq("is_active", true)
     .eq("approved_for_publication", true)
     .eq("consent_confirmed", true)
+    .not("published_at", "is", null)
+    .lte("published_at", new Date().toISOString())
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(24);
   if (featuredOnly) query = query.eq("is_featured", true);
   const { data, error } = await query;
   if (error) throw databaseError("testimonials.public.list", error);

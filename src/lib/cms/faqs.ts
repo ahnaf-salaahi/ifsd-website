@@ -16,7 +16,8 @@ async function listVisibleFaqs(pageId: string | null) {
     .select(PUBLIC_FAQ_COLUMNS)
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(40);
   query = pageId
     ? query.eq("page_id", requireUuid(pageId, "pageId"))
     : query.is("page_id", null);

@@ -15,7 +15,8 @@ export async function listHomepageStatistics() {
     .select(PUBLIC_STATISTIC_COLUMNS)
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(24);
   if (error) throw databaseError("statistics.public.list", error);
   return data;
 }

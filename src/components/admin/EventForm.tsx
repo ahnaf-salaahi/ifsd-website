@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -14,7 +15,7 @@ type Event = {
   title: string;
   slug: string;
   description: string;
-  event_date: string;
+  event_date: string | null;
   location: string | null;
   registration_open: boolean | null;
   cover_image_url: string | null;
@@ -87,8 +88,8 @@ export default function EventForm({ event }: { event?: Event }) {
         .update({
           title,
           description,
-          event_date: eventDate,
-          location,
+          event_date: eventDate || null,
+          location: location.trim() || null,
           registration_open: registrationOpen,
           cover_image_url: coverImageUrl || null,
         })
@@ -114,7 +115,7 @@ export default function EventForm({ event }: { event?: Event }) {
         return;
       }
 
-      const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+      const text = `Event: ${title}\n${description}\nDate: ${eventDate || "To be announced"}\nLocation: ${location || "To be announced"}\nRegistration Open: ${registrationOpen}`;
       syncEmbedding("event", eventId, text);
 
       setSaving(false);
@@ -131,8 +132,8 @@ export default function EventForm({ event }: { event?: Event }) {
           title,
           slug,
           description,
-          event_date: eventDate,
-          location,
+          event_date: eventDate || null,
+          location: location.trim() || null,
           registration_open: registrationOpen,
           cover_image_url: coverImageUrl || null,
         })
@@ -161,7 +162,7 @@ export default function EventForm({ event }: { event?: Event }) {
           return;
         }
 
-        const text = `Event: ${title}\n${description}\nDate: ${eventDate}\nLocation: ${location || "N/A"}\nRegistration Open: ${registrationOpen}`;
+        const text = `Event: ${title}\n${description}\nDate: ${eventDate || "To be announced"}\nLocation: ${location || "To be announced"}\nRegistration Open: ${registrationOpen}`;
         syncEmbedding("event", data.id, text);
       }
 
@@ -289,9 +290,10 @@ export default function EventForm({ event }: { event?: Event }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium text-gray-700">Date & Time</label>
+          <label className="text-sm font-medium text-gray-700">
+            Date & Time <span className="font-normal text-gray-400">(optional)</span>
+          </label>
           <input
-            required
             type="datetime-local"
             value={eventDate}
             onChange={(e) => setEventDate(e.target.value)}
@@ -299,7 +301,9 @@ export default function EventForm({ event }: { event?: Event }) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-700">Location</label>
+          <label className="text-sm font-medium text-gray-700">
+            Location <span className="font-normal text-gray-400">(optional)</span>
+          </label>
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
@@ -324,7 +328,16 @@ export default function EventForm({ event }: { event?: Event }) {
             />
           </label>
           {coverImageUrl && (
-            <img src={coverImageUrl} alt="" className="w-16 h-16 rounded-lg object-cover" />
+            <div className="relative h-16 w-16 overflow-hidden rounded-lg">
+              <Image
+                src={coverImageUrl}
+                alt="Event flyer preview"
+                fill
+                unoptimized
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
           )}
         </div>
       </div>

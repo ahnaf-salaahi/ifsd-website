@@ -6,6 +6,7 @@ import {
   listPublicScholarships,
   parseScholarshipFilters,
 } from "@/lib/scholarships-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     "Stay updated with published scholarship opportunities, eligibility requirements, and application deadlines.";
   return {
-    title: `Scholarships | ${settings?.institute_name || "Institute for Skills Development"}`,
+    title: `Scholarships | ${SITE_NAME}`,
     description,
+    alternates: { canonical: "/scholarships" },
+    robots: {
+      index: settings?.default_robots_index ?? true,
+      follow: settings?.default_robots_follow ?? true,
+    },
     openGraph: {
-      title: "Scholarships | Institute for Skills Development",
+      title: `Scholarships | ${SITE_NAME}`,
       description,
       images: ["/logo-v2.png"],
     },

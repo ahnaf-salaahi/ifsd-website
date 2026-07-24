@@ -16,7 +16,8 @@ async function listVisibleTeam(featuredOnly: boolean) {
     .select(PUBLIC_TEAM_COLUMNS)
     .eq("is_active", true)
     .order("display_order")
-    .order("id");
+    .order("id")
+    .limit(24);
   if (featuredOnly) query = query.eq("is_featured", true);
   const { data, error } = await query;
   if (error) throw databaseError("team.public.list", error);

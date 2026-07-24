@@ -6,6 +6,7 @@ import {
   listPublicSuccessStories,
   parseSuccessStoryFilters,
 } from "@/lib/success-stories-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     "Read stories from students, scholarship recipients, participants, parents, and mentors in our community.";
   return {
-    title: `Success Stories | ${settings?.institute_name || "Institute for Skills Development"}`,
+    title: `Success Stories | ${SITE_NAME}`,
     description,
+    alternates: { canonical: "/success-stories" },
+    robots: {
+      index: settings?.default_robots_index ?? true,
+      follow: settings?.default_robots_follow ?? true,
+    },
     openGraph: {
-      title: "Success Stories | Institute for Skills Development",
+      title: `Success Stories | ${SITE_NAME}`,
       description,
       images: ["/logo-v2.png"],
     },

@@ -1,8 +1,46 @@
-import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import EventDetailClient from "@/components/EventDetailClient";
+import {
+  getEventMetadataDefaults,
+  getPublicEvent,
+  isValidEventSlug,
+} from "@/lib/events-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (!isValidEventSlug(slug)) {
+    return { robots: { index: false, follow: false } };
+  }
+  const [detail, settings] = await Promise.all([
+    getPublicEvent(slug).catch(() => null),
+    getEventMetadataDefaults().catch(() => null),
+  ]);
+  if (!detail) return { robots: { index: false, follow: false } };
+  const description = excerpt(detail.event.description);
+  const institute = SITE_NAME;
+  return {
+    title: `${detail.event.title} | ${institute}`,
+    description,
+    alternates: { canonical: `/events/${detail.event.slug}` },
+    robots: {
+      index: settings?.default_robots_index ?? true,
+      follow: settings?.default_robots_follow ?? true,
+    },
+    openGraph: {
+      title: detail.event.title,
+      description,
+      images: ["/logo-v2.png"],
+    },
+  };
+}
 
 export default async function EventDetailPage({
   params,
@@ -10,37 +48,12 @@ export default async function EventDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
+  if (!isValidEventSlug(slug)) notFound();
+  const detail = await getPublicEvent(slug);
+  if (!detail) notFound();
+  return <EventDetailClient detail={detail} />;
+}
 
-  const { data: event } = await supabase
-    .from("events")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (!event) {
-    notFound();
-  }
-
-  const { data: photos } = await supabase
-    .from("event_photos")
-    .select("*")
-    .eq("event_id", event.id)
-    .order("created_at", { ascending: true });
-
-  const { data: registrationForm } = await supabase
-    .from("forms")
-    .select("id")
-    .eq("event_id", event.id)
-    .eq("is_active", true)
-    .eq("is_public", true)
-    .maybeSingle();
-
-  return (
-    <EventDetailClient
-      event={event}
-      photos={photos ?? []}
-      hasActiveRegistrationForm={Boolean(registrationForm)}
-    />
-  );
+function excerpt(value: string) {
+  return value.replace(/\s+/g, " ").trim().slice(0, 160);
 }

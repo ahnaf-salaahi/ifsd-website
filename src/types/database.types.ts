@@ -357,7 +357,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string | null
           description: string
-          event_date: string
+          event_date: string | null
           id: string
           location: string | null
           registration_open: boolean | null
@@ -368,7 +368,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description: string
-          event_date: string
+          event_date?: string | null
           id?: string
           location?: string | null
           registration_open?: boolean | null
@@ -379,7 +379,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           description?: string
-          event_date?: string
+          event_date?: string | null
           id?: string
           location?: string | null
           registration_open?: boolean | null

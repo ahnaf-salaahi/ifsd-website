@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Download } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Download, Trash2 } from "lucide-react";
+import { deleteLegacyRegistrationAction } from "@/app/admin/(protected)/registrations/actions";
 
 type Registration = {
   id: string;
@@ -34,6 +36,9 @@ export default function RegistrationsClient({
     ...Array.from(new Set(registrations.map((r) => r.events?.title ?? "Unknown Event"))),
   ];
   const [filter, setFilter] = useState("All");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const filtered = registrations.filter(
     (r) => filter === "All" || (r.events?.title ?? "Unknown Event") === filter
@@ -60,6 +65,19 @@ export default function RegistrationsClient({
     URL.revokeObjectURL(url);
   }
 
+  async function deleteRegistration(id: string) {
+    if (!window.confirm("Delete this registration permanently?")) return;
+    setDeletingId(id);
+    setError("");
+    const result = await deleteLegacyRegistrationAction(id);
+    if (!result.success) {
+      setError(result.message);
+      setDeletingId(null);
+      return;
+    }
+    router.refresh();
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -71,6 +89,7 @@ export default function RegistrationsClient({
           <Download size={16} /> Export CSV
         </button>
       </div>
+      {error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
 
       <div className="mt-4 flex flex-wrap gap-2">
         {eventTitles.map((t) => (
@@ -97,6 +116,9 @@ export default function RegistrationsClient({
               <th className="px-6 py-3 font-medium">Email</th>
               <th className="px-6 py-3 font-medium">Phone</th>
               <th className="px-6 py-3 font-medium">Date</th>
+              <th className="px-6 py-3 font-medium">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -107,11 +129,22 @@ export default function RegistrationsClient({
                 <td className="px-6 py-4 text-gray-600">{r.email}</td>
                 <td className="px-6 py-4 text-gray-600">{r.phone ?? "—"}</td>
                 <td className="px-6 py-4 text-gray-600">{formatDate(r.created_at)}</td>
+                <td className="px-6 py-4 text-right">
+                  <button
+                    type="button"
+                    onClick={() => deleteRegistration(r.id)}
+                    disabled={deletingId === r.id}
+                    className="inline-flex items-center gap-1.5 font-medium text-red-600 hover:underline disabled:opacity-50"
+                  >
+                    <Trash2 size={14} />
+                    {deletingId === r.id ? "Deleting…" : "Delete"}
+                  </button>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   No registrations yet.
                 </td>
               </tr>

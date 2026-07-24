@@ -18,7 +18,7 @@ export default async function AdminRegistrationsPage() {
     await Promise.all([
       supabase
         .from("form_submissions")
-        .select("id, form_id, status, submitted_at")
+        .select("id, form_id, submitted_at")
         .order("submitted_at", { ascending: false }),
       supabase
         .from("event_registrations")
@@ -117,7 +117,6 @@ export default async function AdminRegistrationsPage() {
       email: applicant?.get("email") ?? "",
       phone: applicant?.get("phone") ?? "",
       submitted_at: submission.submitted_at,
-      status: submission.status as SubmissionListItem["status"],
     };
   });
 

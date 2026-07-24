@@ -16,10 +16,10 @@ import {
   MonitorSmartphone,
 } from "lucide-react";
 import {
-  getProgrammeMetadataDefaults,
   getPublicProgramme,
   safeProgrammeCta,
 } from "@/lib/programmes-public";
+import { SITE_NAME } from "@/lib/site-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -48,15 +48,12 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const [result, settings] = await Promise.all([
-    getPublicProgramme(slug),
-    getProgrammeMetadataDefaults().catch(() => null),
-  ]);
+  const result = await getPublicProgramme(slug);
   const programme = result?.programme;
 
   if (!programme) {
     return {
-      title: "Programme Not Found | Institute for Skills Development",
+      title: `Programme Not Found | ${SITE_NAME}`,
       robots: { index: false, follow: false },
     };
   }
@@ -64,7 +61,7 @@ export async function generateMetadata({
   return {
     title:
       programme.seo_title ||
-      `${programme.title} | ${settings?.institute_name || "Institute for Skills Development"}`,
+      `${programme.title} | ${SITE_NAME}`,
     description: metadataDescription(programme),
     alternates: { canonical: `/programmes/${programme.slug}` },
     openGraph: {
